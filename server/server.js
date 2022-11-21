@@ -76,20 +76,20 @@ io.on("connection", (socket) => {
     });
 
 	// Receive change of turn and send changes to clients
-	socket.on('turn', (data) => {
-		console.log("received turn change message " + data);
+	socket.on('turn', () => {
+		console.log("received turn change message ");
         /*const { turn, roomId } = data; // received data
         io.in(roomId).emit("turn", {
             turn
         });*/
 
 		// Send out change of turn
-		socket.broadcast.emit('turn', data);
+		socket.broadcast.emit('change-turn');
     });
 });
 
 // SERVE on port and start listening for API calls
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () =>
 	console.log(`server is listening on http://localhost:${PORT}`)
 );

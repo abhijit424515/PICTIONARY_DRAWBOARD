@@ -10,6 +10,7 @@ const Canvas = ({
   elements,
   tool,
   socket,
+  turn
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -94,7 +95,8 @@ const Canvas = ({
     });
     const canvasImage = canvasRef.current.toDataURL();
     socket.emit("drawing", canvasImage);
-  }, [elements]);
+
+  }, [elements, turn]);
 
   const handleMouseMove = (e) => {
     if (!isDrawing) {

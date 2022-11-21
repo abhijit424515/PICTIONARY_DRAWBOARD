@@ -29,6 +29,7 @@ export default function JoinCreateRoom({
 			presenter: turn, // allowed only if your turn
 		});
 		setRoomJoined(true);
+		setTurn(true);
 	};
 	const handleJoinSubmit = (e) => {
 		e.preventDefault();
