@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 
-const ClientRoom = ({ userNo, socket, setUsers, setUserNo, turn}) => {
-    console.log("here bebi");
-    const imgRef = useRef(null);
+const ClientRoom = ({ userNo, socket, setUsers, setUserNo, turn, imgRef}) => {
+    // const imgRef = useRef(null);
     console.log(imgRef.current);
     useEffect(() => {
+        console.log("re render");
         socket.on("message", (data) => {
             toast.info(data.message);
         });
@@ -16,12 +16,15 @@ const ClientRoom = ({ userNo, socket, setUsers, setUserNo, turn}) => {
             setUserNo(data.length);
         });
     }, []);
+    useEffect( () => {
+        console.log("imgref changed");
+        console.log(imgRef);
+    }, [imgRef]
+    );
     useEffect(() => {
+        console.log("useEffect called");
         socket.on("canvasImage", (data) => {
-            // console.log(imgRef);
-            console.log("now setinggggggg");
-            document.getElementById("hibebi").ref = imgRef;
-            console.log(imgRef.current);
+            console.log(imgRef);
             imgRef.current.src = data;
         });
     }, []);
