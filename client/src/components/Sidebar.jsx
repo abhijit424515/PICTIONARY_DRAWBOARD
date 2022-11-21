@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { Socket } from "socket.io-client";
 
-const Sidebar = ({ users, user, socket }) => {
+const Sidebar = ({ users, user, socket, turn, setTurn}) => {
   const sideBarRef = useRef(null);
 
   const openSideBar = () => {
@@ -10,6 +10,20 @@ const Sidebar = ({ users, user, socket }) => {
   const closeSideBar = () => {
     sideBarRef.current.style.left = -100 + "%";
   };
+
+  // Toggle turn for a given user
+  const Toggle = () => {
+    setTurn(!turn);
+    console.log(turn)
+    socket.emit('turn', !turn); 
+  }
+
+  // Receive change of turn from server
+  socket.on('turn', (data) => {
+    console.log("server sent " + data);
+    setTurn(data);
+  });
+
   return (
     <>
       <button
@@ -19,6 +33,17 @@ const Sidebar = ({ users, user, socket }) => {
       >
         Users
       </button>
+
+      {/* Button for toggling users */}
+      <button
+        className="btn btn-dark btn-sm"
+        onClick={Toggle}
+        style={{ position: "absolute", top: "5%", right: "5%" }}
+      >
+        Toggle Role
+      </button>
+
+
       <div
         className="position-fixed pt-2 h-100 bg-dark"
         ref={sideBarRef}

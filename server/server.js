@@ -74,6 +74,18 @@ io.on("connection", (socket) => {
             message
         });
     });
+
+	// Receive change of turn and send changes to clients
+	socket.on('turn', (data) => {
+		console.log("received turn change message " + data);
+        /*const { turn, roomId } = data; // received data
+        io.in(roomId).emit("turn", {
+            turn
+        });*/
+
+		// Send out change of turn
+		io.broadcast.emit('turn', data);
+    });
 });
 
 // SERVE on port and start listening for API calls

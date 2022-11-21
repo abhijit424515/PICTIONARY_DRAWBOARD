@@ -37,7 +37,7 @@ const App = () => {
 			<ToastContainer />
 			{roomJoined ? (
 				<>
-					<Sidebar users={users} user={user} socket={socket} />
+					<Sidebar users={users} user={user} socket={socket} turn={turn} setTurn={setTurn} />
 					{turn ? (
 						<Room
 							userNo={userNo}
