@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
         });*/
 
 		// Send out change of turn
-		io.broadcast.emit('turn', data);
+		socket.broadcast.emit('turn', data);
     });
 });
 
