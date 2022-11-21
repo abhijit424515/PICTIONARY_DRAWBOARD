@@ -8,7 +8,7 @@ import Sidebar from "./components/Sidebar";
 
 import "./styles/style.css";
 
-const server = "http://localhost:5001";
+const server = "http://localhost:5000";
 const connectionOptions = {
 	"force new connection": true,
 	reconnectionAttempts: "Infinity",
@@ -45,6 +45,7 @@ const App = () => {
 							socket={socket}
 							setUsers={setUsers}
 							setUserNo={setUserNo}
+							turn={turn}
 						/>
 					) : (
 						<ClientRoom
@@ -53,6 +54,7 @@ const App = () => {
 							socket={socket}
 							setUsers={setUsers}
 							setUserNo={setUserNo}
+							turn={turn}
 						/>
 					)}
 				</>

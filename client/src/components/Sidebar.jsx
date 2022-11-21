@@ -4,6 +4,10 @@ import { Socket } from "socket.io-client";
 const Sidebar = ({ users, user, socket, turn, setTurn}) => {
   const sideBarRef = useRef(null);
 
+  socket.on('change-turn', () => {
+    setTurn(false);
+  });
+
   const openSideBar = () => {
     sideBarRef.current.style.left = 0;
   };
@@ -13,9 +17,9 @@ const Sidebar = ({ users, user, socket, turn, setTurn}) => {
 
   // Toggle turn for a given user
   const Toggle = () => {
-    setTurn(!turn);
-    console.log(turn)
-    socket.emit('turn', !turn); 
+    setTurn(true);
+    console.log(turn);
+    socket.emit('turn'); 
   }
 
   // Receive change of turn from server

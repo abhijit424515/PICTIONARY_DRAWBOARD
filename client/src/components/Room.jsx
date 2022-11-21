@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import Canvas from "./Canvas";
 
-const Room = ({ userNo, socket, setUsers, setUserNo}) => {
+const Room = ({ userNo, socket, setUsers, setUserNo, turn}) => {
 	const canvasRef = useRef(null);
 	const ctx = useRef(null);
 	const [color, setColor] = useState("#000000");
@@ -154,6 +154,7 @@ const Room = ({ userNo, socket, setUsers, setUserNo}) => {
 					elements={elements}
 					tool={tool}
 					socket={socket}
+					turn={turn}
 				/>
 			</div>
 		</div>
