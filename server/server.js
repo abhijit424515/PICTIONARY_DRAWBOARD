@@ -1,68 +1,74 @@
-const express = require("express");
-const http = require("http");
-const cors = require("cors");
-const { userJoin, getUsers, userLeave } = require("./utils/user");
+import express from "express";
+import http from "http";
+import cors from "cors";
+import { userJoin, getUsers, userLeave } from "./utils/user.js";
+import { Server } from "socket.io";
 
 const app = express();
-const server = http.createServer(app);
-const socketIO = require("socket.io");
-const io = socketIO(server);
-
 app.use(cors());
+const server = http.createServer(app);
+const io = new Server(server);
+
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
+	try {
+		res.header("Access-Control-Allow-Origin", "*");
+		res.header(
+			"Access-Control-Allow-Headers",
+			"Origin, X-Requested-With, Content-Type, Accept"
+		);
+	} catch (err) {
+		next(err);
+	}
 });
 
 app.get("/", (req, res) => {
-  res.send("server");
+	res.send("server");
 });
 
-// socket.io
 let imageUrl, userRoom;
+
+// Start listening for socket events from Sails with the specified eventName
 io.on("connection", (socket) => {
-  socket.on("user-joined", (data) => {
-    const { roomId, userId, userName, host, presenter } = data;
-    userRoom = roomId;
-    const user = userJoin(socket.id, userName, roomId, host, presenter);
-    const roomUsers = getUsers(user.room);
-    socket.join(user.room);
-    socket.emit("message", {
-      message: "Welcome to ChatRoom",
-    });
-    socket.broadcast.to(user.room).emit("message", {
-      message: `${user.username} has joined`,
-    });
+	// USER JOIN socket function called by client
+	socket.on("user-joined", (data) => {
+		const { roomId, userId, userName, host, presenter } = data; // received data
+		userRoom = roomId;
+		const user = userJoin(socket.id, userName, roomId, host, presenter); // add user to chat
+		const roomUsers = getUsers(user.room); // get all users present in this room
+		socket.join(user.room); // user joins the room
+		socket.emit("message", {
+			message: "Welcome to ChatRoom",
+		}); // welcome message for room
+		socket.broadcast.to(user.room).emit("message", {
+			message: `${user.username} has joined`,
+		}); // chatBot message for new users (not to the user)
 
-    io.to(user.room).emit("users", roomUsers);
-    io.to(user.room).emit("canvasImage", imageUrl);
-  });
+		io.to(user.room).emit("users", roomUsers); // Broadcast players list to ALL users
+		io.to(user.room).emit("canvasImage", imageUrl); // Broadcast drawboard to ALL users
+	});
 
-  socket.on("drawing", (data) => {
-    imageUrl = data;
-    socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
-  });
+	// DRAWING socket function called by client
+	socket.on("drawing", (data) => {
+		imageUrl = data;
+		socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
+	});
 
-  socket.on("disconnect", () => {
-    const userLeaves = userLeave(socket.id);
-    const roomUsers = getUsers(userRoom);
+	// DISCONNECT socket function called by client
+	socket.on("disconnect", () => {
+		const userLeaves = userLeave(socket.id);
+		const roomUsers = getUsers(userRoom);
 
-    if (userLeaves) {
-      io.to(userLeaves.room).emit("message", {
-        message: `${userLeaves.username} left the chat`,
-      });
-      io.to(userLeaves.room).emit("users", roomUsers);
-    }
-  });
+		if (userLeaves) {
+			io.to(userLeaves.room).emit("message", {
+				message: `${userLeaves.username} left the chat`,
+			});
+			io.to(userLeaves.room).emit("users", roomUsers);
+		}
+	});
 });
 
-// serve on port
-const PORT = process.env.PORT || 5000;
-
+// SERVE on port and start listening for API calls
+const PORT = process.env.PORT || 5001;
 server.listen(PORT, () =>
-  console.log(`server is listening on http://localhost:${PORT}`)
+	console.log(`server is listening on http://localhost:${PORT}`)
 );

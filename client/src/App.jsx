@@ -8,7 +8,7 @@ import Sidebar from "./components/Sidebar";
 
 import "./styles/style.css";
 
-const server = "http://localhost:5000";
+const server = "http://localhost:5001";
 const connectionOptions = {
 	"force new connection": true,
 	reconnectionAttempts: "Infinity",
@@ -23,40 +23,22 @@ const App = () => {
 	const [roomJoined, setRoomJoined] = useState(false);
 	const [user, setUser] = useState({});
 	const [users, setUsers] = useState([]);
-
-	const uuid = () => {
-		var S4 = () => {
-			return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-		};
-		return (
-			S4() +
-			S4() +
-			"-" +
-			S4() +
-			"-" +
-			S4() +
-			"-" +
-			S4() +
-			"-" +
-			S4() +
-			S4() +
-			S4()
-		);
-	};
+	const [turn, setTurn] = useState(false);
 
 	useEffect(() => {
 		if (roomJoined) {
+			// clients cannot emit to other clients, only to the servers
 			socket.emit("user-joined", user);
 		}
 	}, [roomJoined]);
 
 	return (
-		<div className="home">
+		<>
 			<ToastContainer />
 			{roomJoined ? (
 				<>
 					<Sidebar users={users} user={user} socket={socket} />
-					{user.presenter ? (
+					{turn ? (
 						<Room
 							userNo={userNo}
 							user={user}
@@ -76,12 +58,13 @@ const App = () => {
 				</>
 			) : (
 				<JoinCreateRoom
-					uuid={uuid}
 					setRoomJoined={setRoomJoined}
 					setUser={setUser}
+					turn={turn}
+					setTurn={setTurn}
 				/>
 			)}
-		</div>
+		</>
 	);
 };
 export default App;
