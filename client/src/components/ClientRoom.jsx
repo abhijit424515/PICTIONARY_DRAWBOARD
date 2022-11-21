@@ -2,7 +2,9 @@ import React, { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 
 const ClientRoom = ({ userNo, socket, setUsers, setUserNo, turn}) => {
+    console.log("here bebi");
     const imgRef = useRef(null);
+    console.log(imgRef.current);
     useEffect(() => {
         socket.on("message", (data) => {
             toast.info(data.message);
@@ -16,10 +18,18 @@ const ClientRoom = ({ userNo, socket, setUsers, setUserNo, turn}) => {
     }, []);
     useEffect(() => {
         socket.on("canvasImage", (data) => {
-            console.log(imgRef);
+            // console.log(imgRef);
+            console.log("now setinggggggg");
+            document.getElementById("hibebi").ref = imgRef;
+            console.log(imgRef.current);
             imgRef.current.src = data;
         });
-    }, [turn]);
+    }, []);
+
+    // socket.on("canvasImage", (data) => {
+    //     // console.log(imgRef);
+    //     imgRef.current.src = data;
+    // });
 
     return (
         
@@ -35,7 +45,7 @@ const ClientRoom = ({ userNo, socket, setUsers, setUserNo, turn}) => {
             mt-3"
                         style={{ height: "500px" }}
                     >
-                        <img className="w-100 h-100" ref={imgRef} src="" alt="image" />
+                        <img id="hibebi" className="w-100 h-100" ref={imgRef} src="" alt="image" />
                     </div>
                 </div>
             </div>

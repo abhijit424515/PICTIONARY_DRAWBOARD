@@ -1,12 +1,14 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Socket } from "socket.io-client";
 
 const Sidebar = ({ users, user, socket, turn, setTurn}) => {
   const sideBarRef = useRef(null);
 
-  socket.on('change-turn', () => {
-    setTurn(false);
-  });
+  useEffect(() => {
+    socket.on('change-turn', () => {
+      setTurn(false);
+    });
+  }, []);
 
   const openSideBar = () => {
     sideBarRef.current.style.left = 0;
