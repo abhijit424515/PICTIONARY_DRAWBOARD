@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server);
+// const io = require('socket.io')(server)
 
 app.use((req, res, next) => {
 	try {
@@ -65,6 +66,14 @@ io.on("connection", (socket) => {
 			io.to(userLeaves.room).emit("users", roomUsers);
 		}
 	});
+
+	// Receive Chat from clients
+	socket.on("chat", (data) => {
+        const { message, roomId } = data; // received data
+        io.in(roomId).emit("chat", {
+            message
+        });
+    });
 });
 
 // SERVE on port and start listening for API calls
