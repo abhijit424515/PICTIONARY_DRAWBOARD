@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import io from "socket.io-client";
 import ClientRoom from "./components/ClientRoom";
@@ -24,6 +24,7 @@ const App = () => {
 	const [user, setUser] = useState({});
 	const [users, setUsers] = useState([]);
 	const [turn, setTurn] = useState(false);
+    const imgRef = useRef(null);
 
 	useEffect(() => {
 		if (roomJoined) {
@@ -55,6 +56,7 @@ const App = () => {
 							setUsers={setUsers}
 							setUserNo={setUserNo}
 							turn={turn}
+							imgRef={imgRef}
 						/>
 					)}
 				</>
