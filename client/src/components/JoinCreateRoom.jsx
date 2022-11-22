@@ -1,54 +1,52 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
 import "../styles/JoinCreateRoom.css";
 
-export default function JoinCreateRoom({
-	uuid,
-	setUser,
-	setRoomJoined,
-	turn,
-	setTurn,
-}) {
-	const [roomId, setRoomId] = useState(uuidv4());
-	const [name, setName] = useState("");
-	const [joinRoomId, setJoinRoomId] = useState("");
+export default function JoinCreateRoom(props) {
+	const [playerName, setPlayerName] = useState(props.user.name);
+	const [joinRoomID, setJoinRoomID] = useState("");
+
+	useEffect(() => {
+		props.setRoomID(uuidv4());
+	}, []);
 
 	const handleCreateSubmit = (e) => {
 		e.preventDefault();
-		// make sure name is
-		if (!name) return toast.dark("Please enter your name!");
+		if (!playerName) return toast.dark("Please enter your name!");
 
-		setUser({
-			roomId,
-			userId: uuidv4(),
-			userName: name,
-			host: turn, // allowed only if your turn
-			presenter: turn, // allowed only if your turn
+		props.setUser({
+			...props.user,
+			name: playerName,
+			roomID: props.roomID,
+			host: props.turn,
+			presenter: props.turn,
 		});
-		setRoomJoined(true);
-		setTurn(true);
+		props.setRoomJoined(true);
+		props.setTurn(true);
 	};
 	const handleJoinSubmit = (e) => {
 		e.preventDefault();
-		if (!name) return toast.dark("Please enter your name!");
+		if (!playerName) return toast.dark("Please enter your name!");
+		if (!joinRoomID) return toast.dark("Please enter Room ID");
 
-		setUser({
-			roomId: joinRoomId,
-			userId: uuidv4(),
-			userName: name,
-			host: turn, // not allowed if not your turn
-			presenter: turn, // not allowed if not your turn
+		props.setRoomID(joinRoomID);
+		props.setUser({
+			...props.user,
+			name: playerName,
+			roomID: joinRoomID,
+			host: props.turn,
+			presenter: props.turn,
 		});
-		setRoomJoined(true);
+		props.setRoomJoined(true);
 	};
 
 	return (
 		<div className="mx-3 text-center flex flex-col">
 			<div>
-				<h1 className="h1 pt-[1rem] pb-[0.5rem] text-[5rem]">Skribbl.io ✎</h1>
+				<h1 className="h1 pt-[1rem] pb-[0.5rem] text-[5rem]">skribbl.io ✎</h1>
 			</div>
 			<div className="flex flex-row">
 				<div className="w-full">
@@ -58,22 +56,22 @@ export default function JoinCreateRoom({
 							type="text"
 							placeholder="Name"
 							className="w-2/3 p-[1rem] border-2 border-slate-700 my-2"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
+							value={playerName}
+							onChange={(e) => setPlayerName(e.target.value)}
 						/>
 						<div className="w-2/3 align-items-center flex flex-row divide-x-2 divide-slate-700">
 							<p className="truncate w-1/2 text-center p-[1rem] h-full pr-[0.5rem] rounded-l-[12px] border-2 border-r-0 border-slate-700">
-								{roomId}
+								{props.roomID}
 							</p>
 							<button
 								className="w-1/4 h-full text-center p-[1rem] border-t-2 border-b-2 border-slate-700"
-								onClick={() => setRoomId(uuidv4())}
+								onClick={() => props.setRoomID(uuidv4())}
 							>
 								Generate
 							</button>
 							<CopyToClipboard
-								text={roomId}
-								onCopy={() => toast.success("Room Id Copied To Clipboard!")}
+								text={props.roomID}
+								onCopy={() => toast.success("Room ID Copied To Clipboard!")}
 							>
 								<button className="text-white bg-black w-1/4 h-full text-center p-[1rem] rounded-r-[12px]">
 									Copy
@@ -96,17 +94,16 @@ export default function JoinCreateRoom({
 							type="text"
 							placeholder="Name"
 							className="w-2/3 p-[1rem] border-2 border-slate-700 my-2"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
+							value={playerName}
+							onChange={(e) => setPlayerName(e.target.value)}
 						/>
 						<input
 							type="text"
 							placeholder="Room ID"
 							className="w-2/3 p-[1rem] border-2 border-slate-700"
-							value={joinRoomId}
-							onChange={(e) => setJoinRoomId(e.target.value)}
+							value={joinRoomID}
+							onChange={(e) => setJoinRoomID(e.target.value)}
 						/>
-
 						<button
 							className="w-2/3 mt-5 mb-4 p-[1rem] rounded-[12px] border-2 border-slate-700 text-white bg-black"
 							onClick={handleJoinSubmit}

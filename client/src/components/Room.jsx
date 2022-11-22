@@ -1,164 +1,152 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCopy } from "@fortawesome/free-solid-svg-icons";
+
+import PlayerCards from "./PlayerCards";
+import ChatBubble from "./ChatBubble";
+import { Swatches, Tools } from "./SwatchesAndTools";
 import Canvas from "./Canvas";
 
-const Room = ({ userNo, socket, setUsers, setUserNo, turn}) => {
+export default function Room(props) {
 	const canvasRef = useRef(null);
 	const ctx = useRef(null);
 	const [color, setColor] = useState("#000000");
 	const [elements, setElements] = useState([]);
 	const [history, setHistory] = useState([]);
-	const [tool, setTool] = useState("pencil");
+
+	const [rounds, setRounds] = useState(1);
+	const [chats, setChats] = useState([]);
+	const [msg, setMsg] = useState("");
 
 	useEffect(() => {
-		socket.on("message", (data) => {
+		props.socket.on("message", (data) => {
 			toast.info(data.message);
 		});
-	}, []);
-	useEffect(() => {
-		socket.on("users", (data) => {
-			setUsers(data);
-			setUserNo(data.length);
+
+		props.socket.on("users", (data) => {
+			props.setUsers(data);
+			props.setUserNo(data.length);
 		});
 	}, []);
 
-	const clearCanvas = () => {
-		const canvas = canvasRef.current;
-		const context = canvas.getContext("2d");
-		context.fillStyle = "white";
-		context.fillRect(0, 0, canvas.width, canvas.height);
-		setElements([]);
-	};
+	useEffect(() => {
+		if (!props.turn) {
+			props.socket.on("canvasImage", (data) => {
+				props.imgRef.current.src = data;
+			});
+		}
+	}, [props.turn]);
 
-	const undo = () => {
-		setHistory((prevHistory) => [
-			...prevHistory,
-			elements[elements.length - 1],
-		]);
-		setElements((prevElements) =>
-			prevElements.filter((ele, index) => index !== elements.length - 1)
-		);
-	};
-	const redo = () => {
-		setElements((prevElements) => [
-			...prevElements,
-			history[history.length - 1],
-		]);
-		setHistory((prevHistory) =>
-			prevHistory.filter((ele, index) => index !== history.length - 1)
-		);
-	};
+	function sendMessage(msg) {
+		if (msg) {
+			setChats([...chats, msg]);
+			props.socket.emit("chat", msg);
+			setMsg("");
+		}
+	}
+
+	// TF IS THIS DOING ?
+	// props.socket.on("chat", (msg) => {
+	// 	setChats(chats.concat(msg));
+	// });
+
 	return (
-		<div className="container-fluid">
-			<div className="row">
-				<h1 className="display-5 pt-4 pb-3 text-center">
-					React Drawing App - users online:{userNo}
-				</h1>
-			</div>
-			<div className="row justify-content-center align-items-center text-center py-2">
-				<div className="col-md-2">
-					<div className="color-picker d-flex align-items-center justify-content-center">
-						Color Picker : &nbsp;
-						<input
-							type="color"
-							value={color}
-							onChange={(e) => setColor(e.target.value)}
-						/>
-					</div>
-				</div>
-				<div className="col-md-3">
-					<div className="form-check form-check-inline">
-						<input
-							className="form-check-input"
-							type="radio"
-							name="tools"
-							id="pencil"
-							value="pencil"
-							checked={tool === "pencil"}
-							onClick={(e) => setTool(e.target.value)}
-							readOnly={true}
-						/>
-						<label className="form-check-label" htmlFor="pencil">
-							Pencil
-						</label>
-					</div>
-					<div className="form-check form-check-inline">
-						<input
-							className="form-check-input"
-							type="radio"
-							name="tools"
-							id="line"
-							value="line"
-							checked={tool === "line"}
-							onClick={(e) => setTool(e.target.value)}
-							readOnly={true}
-						/>
-						<label className="form-check-label" htmlFor="line">
-							Line
-						</label>
-					</div>
-					<div className="form-check form-check-inline">
-						<input
-							className="form-check-input"
-							type="radio"
-							name="tools"
-							id="rect"
-							value="rect"
-							checked={tool === "rect"}
-							onClick={(e) => setTool(e.target.value)}
-							readOnly={true}
-						/>
-						<label className="form-check-label" htmlFor="rect">
-							Rectangle
-						</label>
-					</div>
-				</div>
-
-				<div className="col-md-2">
-					<button
-						type="button"
-						className="btn btn-outline-primary"
-						disabled={elements.length === 0}
-						onClick={() => undo()}
+		<>
+			<div className="h-[10vh] p-3 flex flex-row justify-between bg-red-500 text-white border-b-2 border-black">
+				<div className="h1 flex justify-center items-center">skribbl.io ✎</div>
+				<div className="h-[3rem] flex flex-row">
+					<div className="p-[0.5rem] h5 h-full">ROOM ID:</div>
+					<div className="p-[0.5rem] h5 h-full text-black">{props.roomID}</div>
+					<CopyToClipboard
+						text={props.roomID}
+						className="cursor-pointer py-[0.5rem] px-3 h5 h-full"
+						onCopy={() => toast.success("Copied to Clipboard !")}
 					>
-						Undo
-					</button>
-					&nbsp;&nbsp;
-					<button
-						type="button"
-						className="btn btn-outline-primary ml-1"
-						disabled={history.length < 1}
-						onClick={() => redo()}
-					>
-						Redo
-					</button>
+						<div>
+							<FontAwesomeIcon icon={faCopy} />
+						</div>
+					</CopyToClipboard>
 				</div>
-				<div className="col-md-1">
-					<div className="color-picker d-flex align-items-center justify-content-center">
-						<input
-							type="button"
-							className="btn btn-danger"
-							value="clear canvas"
-							onClick={clearCanvas}
-						/>
+				<div className="h3 flex justify-center items-center">
+					Rounds: {rounds} / {props.rounds}
+				</div>
+			</div>
+			<div className="flex flex-row">
+				<div className="h-[90vh] w-1/6 bg-blue-500 flex flex-col py-1 border-r-2 border-black">
+					<PlayerCards
+						name="Alpha"
+						rank={1}
+						textColor="text-black"
+						bgColor="bg-yellow-400"
+					/>
+					<PlayerCards
+						name="Beta"
+						rank={2}
+						textColor="text-black"
+						bgColor="bg-green-400"
+					/>
+				</div>
+				<div className="h-[90vh] w-2/3 flex flex-col py-1 justify-center items-center">
+					{props.turn ? (
+						<>
+							<Tools
+								canvasRef={canvasRef}
+								elements={elements}
+								setElements={setElements}
+								history={history}
+								setHistory={setHistory}
+							/>
+							<Canvas
+								canvasRef={canvasRef}
+								ctx={ctx}
+								color={color}
+								setElements={setElements}
+								elements={elements}
+								tool={"pencil"}
+								socket={props.socket}
+							/>
+							<Swatches color={color} setColor={setColor} />
+						</>
+					) : (
+						<>
+							<img
+								className="w-[500px] h-[500px] border-2 border-black pointer-events-none"
+								ref={props.imgRef}
+								src=""
+								alt="image"
+							/>
+						</>
+					)}
+				</div>
+				<div className="h-[90vh] w-1/6 bg-green-400 flex flex-col p-1 border-l-2 border-black">
+					<div className="h-full">
+						{chats.map((item, index) => {
+							return (
+								<ChatBubble
+									key={index}
+									name={props.user.name}
+									msg={item}
+									bgColor="bg-yellow-200"
+									textColor="text-black"
+								/>
+							);
+						})}
 					</div>
+					<input
+						value={msg}
+						onChange={(event) => setMsg(event.target.value)}
+						placeholder="Type here"
+						className="p-3 h-[2rem] w-full border-2 border-black"
+						onKeyPress={(event) => {
+							if (event.key === "Enter") {
+								sendMessage(msg);
+							}
+						}}
+					/>
 				</div>
 			</div>
-			<div className="row">
-				{/* Here is a canvas */}
-				<Canvas
-					canvasRef={canvasRef}
-					ctx={ctx}
-					color={color}
-					setElements={setElements}
-					elements={elements}
-					tool={tool}
-					socket={socket}
-					turn={turn}
-				/>
-			</div>
-		</div>
+		</>
 	);
-};
-
-export default Room;
+}

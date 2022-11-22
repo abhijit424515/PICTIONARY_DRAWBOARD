@@ -32,16 +32,16 @@ let imageUrl, userRoom;
 io.on("connection", (socket) => {
 	// USER JOIN socket function called by client
 	socket.on("user-joined", (data) => {
-		const { roomId, userId, userName, host, presenter } = data; // received data
+		const { roomId, userId, name, host, presenter } = data; // received data
 		userRoom = roomId;
-		const user = userJoin(socket.id, userName, roomId, host, presenter); // add user to chat
+		const user = userJoin(socket.id, name, roomId, host, presenter); // add user to chat
 		const roomUsers = getUsers(user.room); // get all users present in this room
 		socket.join(user.room); // user joins the room
 		socket.emit("message", {
 			message: "Welcome to ChatRoom",
 		}); // welcome message for room
 		socket.broadcast.to(user.room).emit("message", {
-			message: `${user.username} has joined`,
+			message: `${user.name} has joined`,
 		}); // chatBot message for new users (not to the user)
 
 		io.to(user.room).emit("users", roomUsers); // Broadcast players list to ALL users
@@ -61,7 +61,7 @@ io.on("connection", (socket) => {
 
 		if (userLeaves) {
 			io.to(userLeaves.room).emit("message", {
-				message: `${userLeaves.username} left the chat`,
+				message: `${userLeaves.name} left the chat`,
 			});
 			io.to(userLeaves.room).emit("users", roomUsers);
 		}
@@ -69,23 +69,23 @@ io.on("connection", (socket) => {
 
 	// Receive Chat from clients
 	socket.on("chat", (data) => {
-        const { message, roomId } = data; // received data
-        io.in(roomId).emit("chat", {
-            message
-        });
-    });
+		const { message, roomId } = data; // received data
+		io.in(roomId).emit("chat", {
+			message,
+		});
+	});
 
 	// Receive change of turn and send changes to clients
-	socket.on('turn', () => {
+	socket.on("turn", () => {
 		console.log("received turn change message ");
-        /*const { turn, roomId } = data; // received data
+		/*const { turn, roomId } = data; // received data
         io.in(roomId).emit("turn", {
             turn
         });*/
 
 		// Send out change of turn
-		socket.broadcast.emit('change-turn');
-    });
+		socket.broadcast.emit("change-turn");
+	});
 });
 
 // SERVE on port and start listening for API calls
