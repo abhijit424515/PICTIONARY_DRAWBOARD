@@ -2,12 +2,16 @@ import React, { useState, useRef, useEffect } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faCheck } from "@fortawesome/free-solid-svg-icons";
 
 import PlayerCards from "./PlayerCards";
 import ChatBubble from "./ChatBubble";
 import { Swatches, Tools } from "./SwatchesAndTools";
 import Canvas from "./Canvas";
+
+function timeout(delay) {
+	return new Promise((res) => setTimeout(res, delay));
+}
 
 export default function Room(props) {
 	const canvasRef = useRef(null);
@@ -19,6 +23,8 @@ export default function Room(props) {
 	const [rounds, setRounds] = useState(1);
 	const [chats, setChats] = useState([]);
 	const [msg, setMsg] = useState("");
+
+	const [copied, setCopied] = useState(false);
 
 	useEffect(() => {
 		props.socket.on("message", (data) => {
@@ -62,10 +68,25 @@ export default function Room(props) {
 					<CopyToClipboard
 						text={props.roomID}
 						className="cursor-pointer py-[0.5rem] px-3 h5 h-full"
-						onCopy={() => toast.success("Copied to Clipboard !")}
+						onCopy={async () => {
+							setCopied(true);
+							await timeout(3000);
+							setCopied(false);
+						}}
 					>
-						<div>
-							<FontAwesomeIcon icon={faCopy} />
+						<div style={{ display: "grid" }}>
+							<div style={{ gridColumn: 1, gridRow: 1 }}>
+								<FontAwesomeIcon
+									icon={faCopy}
+									className={copied ? "opacity-0" : "opacity-100"}
+								/>
+							</div>
+							<div style={{ gridColumn: 1, gridRow: 1, color: "#22c55e" }}>
+								<FontAwesomeIcon
+									icon={faCheck}
+									className={copied ? "opacity-100" : "opacity-0"}
+								/>
+							</div>
 						</div>
 					</CopyToClipboard>
 				</div>
