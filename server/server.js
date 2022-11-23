@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
-import { userJoin, getUsers, userLeave } from "./utils/user.js";
+import { userJoin, getUsers, userLeave, getCount } from "./utils/user.js";
 import { Server } from "socket.io";
 
 const app = express();
@@ -34,9 +34,12 @@ io.on("connection", (socket) => {
 	// USER JOIN socket function called by client
 	socket.on("user-joined", (data) => {
 		//id_count++;
-		const { roomId, userId, name, host, presenter } = data; // received data
-		userRoom = roomId;
-		const user = userJoin(socket.id, id_count, name, roomId, host, presenter); // add user to chat
+		const { roomID, userID, name, host, presenter, number } = data; // received data
+		console.log(data);
+		userRoom = roomID;
+		console.log(roomID);
+		const count_in_room  = getCount(roomID);
+		const user = userJoin(socket.id, count_in_room+1, name, roomID, host, presenter); // add user to chat
 		const roomUsers = getUsers(user.room); // get all users present in this room
 		socket.join(user.room); // user joins the room
 		socket.emit("message", {

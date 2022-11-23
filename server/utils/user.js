@@ -1,9 +1,19 @@
 const users = [];
+const rooms = [];
 
 // Join user to chat
 const userJoin = (id, number, name, room, host, presenter) => {
 	const user = { id, number, name, room, host, presenter };
 	users.push(user);
+
+	const roomIndex = rooms.findIndex((thisroom) => thisroom.id === room);
+	if (roomIndex === -1) {
+		const room_entry = {'id' : room, 'count' : 1};
+		rooms.push(room_entry);
+	}
+	else {
+		rooms[roomIndex]['count'] += 1;
+	}
 	return user;
 };
 
@@ -29,4 +39,15 @@ const getUsers = (room) => {
 	return RoomUsers;
 };
 
-export { userJoin, userLeave, getUsers };
+// Get number of users present in room
+const getCount = (room) => {
+	const ind = rooms.findIndex((thisroom) => thisroom['id']===room);
+	if (ind===-1){
+		return 0;
+	}
+	else {
+		return rooms[ind]['count'];
+	}
+}
+
+export { userJoin, userLeave, getUsers, getCount};
