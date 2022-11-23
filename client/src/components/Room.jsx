@@ -34,6 +34,8 @@ export default function Room(props) {
 		props.socket.on("users", (data) => {
 			props.setUsers(data);
 			props.setUserNo(data.length);
+			console.log(props.users);
+			console.log(data);
 		});
 	}, []);
 
@@ -99,18 +101,16 @@ export default function Room(props) {
 			</div>
 			<div className="flex flex-row">
 				<div className="h-[90vh] w-1/6 bg-blue-500 flex flex-col py-1 border-r-2 border-black">
-					<PlayerCards
-						name="Alpha"
-						rank={1}
-						textColor="text-black"
-						bgColor="bg-yellow-400"
-					/>
-					<PlayerCards
-						name="Beta"
-						rank={2}
-						textColor="text-black"
-						bgColor="bg-green-400"
-					/>
+					{props.users.map((item) => {
+						return (
+							<PlayerCards
+								name={item.name}
+								rank={item.number}
+								textColor="text-black"
+								bgColor="bg-yellow-400"
+							/>
+						);
+					})}
 				</div>
 				<div
 					className={

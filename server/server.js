@@ -8,6 +8,7 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server);
+var id_count = 0;
 // const io = require('socket.io')(server)
 
 app.use((req, res, next) => {
@@ -32,9 +33,10 @@ let imageUrl, userRoom;
 io.on("connection", (socket) => {
 	// USER JOIN socket function called by client
 	socket.on("user-joined", (data) => {
+		id_count++;
 		const { roomId, userId, name, host, presenter } = data; // received data
 		userRoom = roomId;
-		const user = userJoin(socket.id, name, roomId, host, presenter); // add user to chat
+		const user = userJoin(socket.id, id_count, name, roomId, host, presenter); // add user to chat
 		const roomUsers = getUsers(user.room); // get all users present in this room
 		socket.join(user.room); // user joins the room
 		socket.emit("message", {

@@ -40,6 +40,11 @@ const App = () => {
 			// clients cannot emit to other clients, only to the servers
 			socket.emit("user-joined", user);
 		}
+		/*
+		socket.on('update-number', (num) => {
+
+		}
+		);*/
 	}, [roomJoined]);
 
 	return (
@@ -60,6 +65,7 @@ const App = () => {
 							rounds={rounds}
 							prompts={prompts}
 							setPrompts={setPrompts}
+							users={users}
 						/>
 					) : (
 						<Room
@@ -75,6 +81,7 @@ const App = () => {
 							imgRef={imgRef}
 							prompts={prompts}
 							setPrompts={setPrompts}
+							users={users}
 						/>
 					)}
 				</>
