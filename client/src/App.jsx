@@ -33,6 +33,7 @@ const App = () => {
 	const imgRef = useRef(null);
 
 	const [roomID, setRoomID] = useState("");
+	const [prompts, setPrompts] = useState({'Windmill': false, 'Calendar': false, 'Boat': false, 'Dog': false, 'Umbrella': false, 'Bottle': false});
 
 	useEffect(() => {
 		if (roomJoined) {
@@ -57,6 +58,8 @@ const App = () => {
 							turn={turn}
 							setTurn={setTurn}
 							rounds={rounds}
+							prompts={prompts}
+							setPrompts={setPrompts}
 						/>
 					) : (
 						<Room
@@ -70,6 +73,8 @@ const App = () => {
 							setTurn={setTurn}
 							rounds={rounds}
 							imgRef={imgRef}
+							prompts={prompts}
+							setPrompts={setPrompts}
 						/>
 					)}
 				</>
