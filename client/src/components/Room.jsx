@@ -109,16 +109,24 @@ export default function Room(props) {
 						bgColor="bg-green-400"
 					/>
 				</div>
-				<div className="h-[90vh] w-2/3 flex flex-col py-1 justify-center items-center">
+				<div
+					className={
+						"h-[90vh] w-2/3 flex flex-col justify-between items-center " +
+						(props.turn ? "py-[1rem]" : "py-[2.5rem]")
+					}
+				>
+					<Tools
+						canvasRef={canvasRef}
+						elements={elements}
+						setElements={setElements}
+						history={history}
+						setHistory={setHistory}
+						turn={props.turn}
+						setTurn={props.setTurn}
+						socket={props.socket}
+					/>
 					{props.turn ? (
 						<>
-							<Tools
-								canvasRef={canvasRef}
-								elements={elements}
-								setElements={setElements}
-								history={history}
-								setHistory={setHistory}
-							/>
 							<Canvas
 								canvasRef={canvasRef}
 								ctx={ctx}
@@ -128,18 +136,22 @@ export default function Room(props) {
 								tool={"pencil"}
 								socket={props.socket}
 							/>
-							<Swatches color={color} setColor={setColor} />
 						</>
 					) : (
 						<>
 							<img
-								className="w-[500px] h-[500px] border-2 border-black pointer-events-none"
+								className="border-2 border-black pointer-events-none"
+								style={{
+									height: `${window.innerHeight / 1.5}px`,
+									width: `${window.innerWidth / 2}px`,
+								}}
 								ref={props.imgRef}
 								src=""
 								alt="image"
 							/>
 						</>
 					)}
+					<Swatches color={color} setColor={setColor} turn={props.turn} />
 				</div>
 				<div className="h-[90vh] w-1/6 bg-green-400 flex flex-col p-1 border-l-2 border-black">
 					<div className="h-full">

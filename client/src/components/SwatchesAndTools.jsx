@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
 
@@ -25,95 +25,135 @@ const colors = [
 	"#000000",
 ];
 
-function Tools({ canvasRef, elements, setElements, history, setHistory }) {
+function Tools(props) {
+	useEffect(() => {
+		props.socket.on("change-turn", () => {
+			props.setTurn(false);
+		});
+	}, []);
+
+	const Toggle = () => {
+		props.setTurn(true);
+		props.socket.emit("turn");
+	};
+
 	const clearCanvas = () => {
-		const canvas = canvasRef.current;
+		const canvas = props.canvasRef.current;
 		const context = canvas.getContext("2d");
 		context.fillStyle = "white";
 		context.fillRect(0, 0, canvas.width, canvas.height);
-		setElements([]);
-		setHistory([]);
+		props.setElements([]);
+		props.setHistory([]);
 	};
 
 	const undo = () => {
-		if (elements.length > 0) {
-			setHistory((prevHistory) => [
+		if (props.elements.length > 0) {
+			props.setHistory((prevHistory) => [
 				...prevHistory,
-				elements[elements.length - 1],
+				props.elements[props.elements.length - 1],
 			]);
 
-			if (elements.length === 1) {
-				const canvas = canvasRef.current;
+			if (props.elements.length === 1) {
+				const canvas = props.canvasRef.current;
 				const context = canvas.getContext("2d");
 				context.fillStyle = "white";
 				context.fillRect(0, 0, canvas.width, canvas.height);
-				setElements([]);
+				props.setElements([]);
 			} else {
-				setElements((prevElements) =>
-					prevElements.filter((ele, index) => index !== elements.length - 1)
+				props.setElements((prevElements) =>
+					prevElements.filter(
+						(ele, index) => index !== props.elements.length - 1
+					)
 				);
 			}
 		}
 	};
 
 	const redo = () => {
-		if (history.length > 0) {
-			setElements((prevElements) => [
+		if (props.history.length > 0) {
+			props.setElements((prevElements) => [
 				...prevElements,
-				history[history.length - 1],
+				props.history[props.history.length - 1],
 			]);
-			if (history.length === 1) {
-				setHistory([]);
+			if (props.history.length === 1) {
+				props.setHistory([]);
 			} else {
-				setHistory((prevHistory) =>
-					prevHistory.filter((ele, index) => index !== history.length - 1)
+				props.setHistory((prevHistory) =>
+					prevHistory.filter((ele, index) => index !== props.history.length - 1)
 				);
 			}
 		}
 	};
 
 	return (
-		<div className="flex flex-row justify-evenly w-[50vw]">
-			<button
-				className="btn btn-outline-primary text-[1.5rem] w-[8rem]"
-				onClick={undo}
-			>
-				<FontAwesomeIcon icon={faUndo} />
-			</button>
-			<button
-				className="btn btn-outline-secondary text-[1.5rem] w-[8rem]"
-				onClick={redo}
-			>
-				<FontAwesomeIcon icon={faRedo} />
-			</button>
-			<button
-				className="btn btn-outline-danger text-[1.5rem] w-[8rem]"
-				onClick={clearCanvas}
-			>
-				Clear
-			</button>
-		</div>
+		<>
+			{props.turn ? (
+				<div className="flex flex-row justify-evenly w-[50vw]">
+					<button
+						className="btn btn-outline-primary text-[1.5rem] w-[8rem]"
+						onClick={undo}
+					>
+						<FontAwesomeIcon icon={faUndo} />
+					</button>
+					<button
+						className="btn btn-outline-secondary text-[1.5rem] w-[8rem]"
+						onClick={redo}
+					>
+						<FontAwesomeIcon icon={faRedo} />
+					</button>
+					<button
+						className="btn btn-outline-danger text-[1.5rem] w-[8rem]"
+						onClick={clearCanvas}
+					>
+						Clear
+					</button>
+					<button
+						className="btn btn-outline-warning text-[1.5rem] w-[8rem]"
+						onClick={Toggle}
+					>
+						MyTurn
+					</button>
+				</div>
+			) : (
+				<>
+					<div className="flex flex-row justify-evenly w-[50vw]">
+						<button
+							className="btn btn-outline-warning text-[1.5rem] w-[8rem]"
+							onClick={Toggle}
+						>
+							MyTurn
+						</button>
+					</div>
+				</>
+			)}
+		</>
 	);
 }
 
-function Swatches({ color, setColor }) {
+function Swatches(props) {
 	return (
-		<div className="flex flex-row my-4 divide-x-2 divide-black">
-			{colors.map((x) => {
-				return (
-					<div
-						key={x}
-						className="border-2 border-black"
-						style={{
-							backgroundColor: x,
-							height: "2.5vw",
-							width: "2.5vw",
-						}}
-						onClick={() => setColor(x)}
-					></div>
-				);
-			})}
-		</div>
+		<>
+			{props.turn ? (
+				<div className="flex flex-row my-4 divide-x-2 divide-black">
+					{colors.map((x) => {
+						return (
+							<div
+								key={x}
+								className="border-2 border-black"
+								style={{
+									backgroundColor: x,
+									height: "2.5vw",
+									width: "2.5vw",
+								}}
+								onClick={() => props.setColor(x)}
+							></div>
+						);
+					})}
+				</div>
+			) : (
+				<></>
+			)}
+		</>
 	);
 }
 

@@ -55,6 +55,7 @@ const App = () => {
 							setUsers={setUsers}
 							setUserNo={setUserNo}
 							turn={turn}
+							setTurn={setTurn}
 							rounds={rounds}
 						/>
 					) : (
@@ -66,6 +67,7 @@ const App = () => {
 							setUsers={setUsers}
 							setUserNo={setUserNo}
 							turn={turn}
+							setTurn={setTurn}
 							rounds={rounds}
 							imgRef={imgRef}
 						/>

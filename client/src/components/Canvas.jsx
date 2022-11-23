@@ -14,13 +14,21 @@ export default function Canvas({
 }) {
 	const [isDrawing, setIsDrawing] = useState(false);
 
+	// console.log("window.innerHeight: " + window.innerHeight);
+	// console.log("window.innerWidth: " + window.innerWidth);
+
 	useEffect(() => {
 		const canvas = canvasRef.current;
-		canvas.height = window.innerHeight;
-		canvas.width = window.innerWidth;
-		canvas.style.width = `${window.innerWidth}px`;
-		canvas.style.height = `${window.innerHeight}px`;
+		canvas.height = window.innerHeight / 1.5;
+		canvas.width = window.innerWidth / 2;
+		canvas.style.height = `${window.innerHeight / 1.5}px`;
+		canvas.style.width = `${window.innerWidth / 2}px`;
 		const context = canvas.getContext("2d");
+
+		// console.log("canvas.height: " + canvas.height);
+		// console.log("canvas.width: " + canvas.width);
+		// console.log("canvas.style.height: " + canvas.style.height);
+		// console.log("canvas.style.width: " + canvas.style.width);
 
 		context.strokeWidth = 5;
 		context.scale(1, 1);
@@ -150,7 +158,10 @@ export default function Canvas({
 	return (
 		<div
 			className="col-md-8 overflow-hidden border border-dark px-0 mx-auto mt-3"
-			style={{ height: "500px" }}
+			style={{
+				height: `${window.innerHeight / 1.5}px`,
+				width: `${window.innerWidth / 2}px`,
+			}}
 			onMouseDown={handleMouseDown}
 			onMouseMove={handleMouseMove}
 			onMouseUp={handleMouseUp}
