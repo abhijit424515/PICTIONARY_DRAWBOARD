@@ -47,8 +47,8 @@ export default function Room(props) {
 
 	function sendMessage(msg) {
 		if (msg) {
-			setChats([...chats, msg]);
-			props.socket.emit("chat", msg);
+			setChats([...chats, [props.user.name, msg]]);
+			props.socket.emit("chat", [props.user.name, msg]);
 			setMsg("");
 		}
 	}
@@ -56,6 +56,8 @@ export default function Room(props) {
 	// TF IS THIS DOING ?
 	props.socket.on("chat", (msg) => {
 		// alert("hi bebi");
+		console.log(msg[0]);
+		console.log(msg[1]);
 		setChats([...chats, msg]);
 	});
 
@@ -160,8 +162,8 @@ export default function Room(props) {
 							return (
 								<ChatBubble
 									key={index}
-									name={props.user.name}
-									msg={item}
+									name={item[0]}
+									msg={item[1][1]}
 									bgColor="bg-yellow-200"
 									textColor="text-black"
 								/>
@@ -175,7 +177,7 @@ export default function Room(props) {
 						className="p-3 h-[2rem] w-full border-2 border-black"
 						onKeyPress={(event) => {
 							if (event.key === "Enter") {
-								sendMessage(msg);
+								sendMessage([props.user.name, msg]);
 							}
 						}}
 					/>
