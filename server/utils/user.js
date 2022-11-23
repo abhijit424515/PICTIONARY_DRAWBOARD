@@ -22,6 +22,12 @@ const userLeave = (id) => {
 	const index = users.findIndex((user) => user.id === id);
 
 	if (index !== -1) {
+		const roomIndex = rooms.findIndex((thisroom) => thisroom.id === users[index].room);
+
+		if(roomIndex != -1){
+			rooms[roomIndex]['count'] -= 1;
+		}
+
 		return users.splice(index, 1)[0];
 	}
 };
@@ -50,4 +56,19 @@ const getCount = (room) => {
 	}
 }
 
-export { userJoin, userLeave, getUsers, getCount};
+const updateNumbers = (roomID, num) => {
+
+	console.log(users);
+
+	users.forEach(n => {
+		if( n.room.toString() === roomID.toString() && n.number > num){
+			n.number = n.number - 1;
+		}
+	})
+}
+
+const getAllUsers = () => {
+	return users;
+}
+
+export { userJoin, userLeave, getUsers, getCount, updateNumbers, getAllUsers};

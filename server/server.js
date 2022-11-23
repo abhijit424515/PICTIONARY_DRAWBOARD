@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
-import { userJoin, getUsers, userLeave, getCount } from "./utils/user.js";
+import { userJoin, getUsers, userLeave, getCount, updateNumbers, getAllUsers } from "./utils/user.js";
 import { Server } from "socket.io";
 
 const app = express();
@@ -34,8 +34,9 @@ io.on("connection", (socket) => {
 	// USER JOIN socket function called by client
 	socket.on("user-joined", (data) => {
 		//id_count++;
+		
 		const { roomID, userID, name, host, presenter, number } = data; // received data
-		console.log(data);
+		// console.log(data);
 		userRoom = roomID;
 		console.log(roomID);
 		const count_in_room  = getCount(roomID);
@@ -69,6 +70,10 @@ io.on("connection", (socket) => {
 				message: `${userLeaves.name} left the chat`,
 			});
 			io.to(userLeaves.room).emit("users", roomUsers);
+
+			updateNumbers(userLeaves.room, userLeaves.number);
+
+			console.log(getAllUsers());
 		}
 	});
 
