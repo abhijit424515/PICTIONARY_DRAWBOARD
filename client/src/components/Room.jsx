@@ -54,9 +54,10 @@ export default function Room(props) {
 	}
 
 	// TF IS THIS DOING ?
-	// props.socket.on("chat", (msg) => {
-	// 	setChats(chats.concat(msg));
-	// });
+	props.socket.on("chat", (msg) => {
+		// alert("hi bebi");
+		setChats([...chats, msg]);
+	});
 
 	return (
 		<>

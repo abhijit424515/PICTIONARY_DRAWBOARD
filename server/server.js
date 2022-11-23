@@ -69,10 +69,8 @@ io.on("connection", (socket) => {
 
 	// Receive Chat from clients
 	socket.on("chat", (data) => {
-		const { message, roomId } = data; // received data
-		io.in(roomId).emit("chat", {
-			message,
-		});
+		// const { message, roomId } = data; // received data
+		socket.broadcast.to(userRoom).emit("chat", data);
 	});
 
 	// Receive change of turn and send changes to clients
