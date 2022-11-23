@@ -23,6 +23,7 @@ export default function JoinCreateRoom(props) {
 			roomID: props.roomID,
 			host: props.turn,
 			presenter: props.turn,
+			number: 1,
 		});
 		props.setRoomJoined(true);
 		props.setTurn(true);
@@ -39,6 +40,7 @@ export default function JoinCreateRoom(props) {
 			roomID: joinRoomID,
 			host: props.turn,
 			presenter: props.turn,
+			// number: id_count,
 		});
 		props.setRoomJoined(true);
 	};
@@ -46,7 +48,7 @@ export default function JoinCreateRoom(props) {
 	return (
 		<div className="mx-3 text-center flex flex-col">
 			<div>
-				<h1 className="h1 pt-[1rem] pb-[0.5rem] text-[5rem]">skribbl.io ✎</h1>
+				<h1 className="h1 pt-[1r	] pb-[0.5rem] text-[5rem]">skribbl.io ✎</h1>
 			</div>
 			<div className="flex flex-row">
 				<div className="w-full">

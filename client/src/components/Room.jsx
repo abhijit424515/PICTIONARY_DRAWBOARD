@@ -55,7 +55,6 @@ export default function Room(props) {
 		}
 	}
 
-	// TF IS THIS DOING ?
 	props.socket.on("chat", (msg) => {
 		// alert("hi bebi");
 		console.log(msg[0]);
@@ -105,7 +104,8 @@ export default function Room(props) {
 						return (
 							<PlayerCards
 								name={item.name}
-								rank={item.number}
+								rank={item.number
+								}
 								textColor="text-black"
 								bgColor="bg-yellow-400"
 							/>
