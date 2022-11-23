@@ -36,6 +36,9 @@ export default function Room(props) {
 			props.setUserNo(data.length);
 			console.log(props.users);
 			console.log(data);
+			console.log("user is ");
+			console.log(props.user);
+			console.log("================================================================");
 		});
 	}, []);
 
@@ -126,6 +129,7 @@ export default function Room(props) {
 						turn={props.turn}
 						setTurn={props.setTurn}
 						socket={props.socket}
+						room={props.user.roomID}
 					/>
 					{props.turn ? (
 						<>
@@ -137,6 +141,7 @@ export default function Room(props) {
 								elements={elements}
 								tool={"pencil"}
 								socket={props.socket}
+								room={props.user.roomID}
 							/>
 						</>
 					) : (

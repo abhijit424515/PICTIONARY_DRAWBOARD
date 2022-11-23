@@ -56,8 +56,8 @@ io.on("connection", (socket) => {
 
 	// DRAWING socket function called by client
 	socket.on("drawing", (data) => {
-		imageUrl = data;
-		socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
+		imageUrl = data['image'];
+		socket.broadcast.to(data['from']).emit("canvasImage", imageUrl);
 	});
 
 	// DISCONNECT socket function called by client
@@ -84,15 +84,15 @@ io.on("connection", (socket) => {
 	});
 
 	// Receive change of turn and send changes to clients
-	socket.on("turn", () => {
-		console.log("received turn change message ");
+	socket.on("turn", (room) => {
+		console.log("received turn change message from " + room);
 		/*const { turn, roomId } = data; // received data
         io.in(roomId).emit("turn", {
             turn
         });*/
 
 		// Send out change of turn
-		socket.broadcast.emit("change-turn");
+		socket.broadcast.to(room).emit("change-turn");
 	});
 });
 
