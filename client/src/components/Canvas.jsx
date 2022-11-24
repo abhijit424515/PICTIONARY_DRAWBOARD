@@ -11,6 +11,7 @@ export default function Canvas({
 	elements,
 	tool,
 	socket,
+	room
 }) {
 	const [isDrawing, setIsDrawing] = useState(false);
 
@@ -95,7 +96,7 @@ export default function Canvas({
 			// }
 		});
 		const canvasImage = canvasRef.current.toDataURL();
-		socket.emit("drawing", canvasImage);
+		socket.emit("drawing", {'image' : canvasImage, 'from' : room});
 	}, [elements]);
 
 	const handleMouseMove = (e) => {

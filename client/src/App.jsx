@@ -15,7 +15,7 @@ const rounds = 5;
 const server = "http://localhost:5000";
 const connectionOptions = {
 	"force new connection": true,
-	reconnectionAttempts: "Infinity",
+	reconnectionAttempts: 0,
 	timeout: 10000,
 	transports: ["websocket"],
 };
@@ -34,12 +34,18 @@ const App = () => {
 	const imgRef = useRef(null);
 
 	const [roomID, setRoomID] = useState("");
+	const [prompts, setPrompts] = useState({'Windmill': false, 'Calendar': false, 'Boat': false, 'Dog': false, 'Umbrella': false, 'Bottle': false});
 
 	useEffect(() => {
 		if (roomJoined) {
 			// clients cannot emit to other clients, only to the servers
 			socket.emit("user-joined", user);
 		}
+		/*
+		socket.on('update-number', (num) => {
+
+		}
+		);*/
 	}, [roomJoined]);
 
 	return (
@@ -59,6 +65,9 @@ const App = () => {
 							turn={turn}
 							setTurn={setTurn}
 							rounds={rounds}
+							prompts={prompts}
+							setPrompts={setPrompts}
+							users={users}
 						/>
 					) : (
 						<Room
@@ -72,6 +81,9 @@ const App = () => {
 							setTurn={setTurn}
 							rounds={rounds}
 							imgRef={imgRef}
+							prompts={prompts}
+							setPrompts={setPrompts}
+							users={users}
 						/>
 					)}
 				</>

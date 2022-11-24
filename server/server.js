@@ -1,13 +1,14 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
-import { userJoin, getUsers, userLeave } from "./utils/user.js";
+import { userJoin, getUsers, userLeave, getCount, updateNumbers, getRooms } from "./utils/user.js";
 import { Server } from "socket.io";
 
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server);
+// var id_count = 0;
 // const io = require('socket.io')(server)
 
 app.use((req, res, next) => {
@@ -30,11 +31,17 @@ let imageUrl, userRoom;
 
 // Start listening for socket events from Sails with the specified eventName
 io.on("connection", (socket) => {
+
 	// USER JOIN socket function called by client
 	socket.on("user-joined", (data) => {
-		const { roomId, userId, name, host, presenter } = data; // received data
-		userRoom = roomId;
-		const user = userJoin(socket.id, name, roomId, host, presenter); // add user to chat
+		//id_count++;
+		
+		const { roomID, userID, name, host, presenter, number } = data; // received data
+		// console.log(data);
+		userRoom = roomID;
+		console.log(roomID);
+		const count_in_room  = getCount(roomID);
+		const user = userJoin(socket.id, count_in_room+1, name, roomID, host, presenter); // add user to chat
 		const roomUsers = getUsers(user.room); // get all users present in this room
 		socket.join(user.room); // user joins the room
 		socket.emit("message", {
@@ -50,40 +57,70 @@ io.on("connection", (socket) => {
 
 	// DRAWING socket function called by client
 	socket.on("drawing", (data) => {
-		imageUrl = data;
-		socket.broadcast.to(userRoom).emit("canvasImage", imageUrl);
+		imageUrl = data['image'];
+		socket.broadcast.to(data['from']).emit("canvasImage", imageUrl);
 	});
 
 	// DISCONNECT socket function called by client
 	socket.on("disconnect", () => {
 		const userLeaves = userLeave(socket.id);
-		const roomUsers = getUsers(userRoom);
 
 		if (userLeaves) {
+
+			const roomUsers = getUsers(userLeaves.room);
+
 			io.to(userLeaves.room).emit("message", {
 				message: `${userLeaves.name} left the chat`,
 			});
 			io.to(userLeaves.room).emit("users", roomUsers);
+
+			updateNumbers(userLeaves.room, userLeaves.number);
 		}
 	});
 
 	// Receive Chat from clients
 	socket.on("chat", (data) => {
 		// const { message, roomId } = data; // received data
-		socket.broadcast.to(userRoom).emit("chat", data);
+		socket.broadcast.to(data.roomID).emit("chat", data.arr);
 	});
 
 	// Receive change of turn and send changes to clients
-	socket.on("turn", () => {
-		console.log("received turn change message ");
+	socket.on("turn", (room) => {
+		// console.log("received turn change message from " + room);
 		/*const { turn, roomId } = data; // received data
         io.in(roomId).emit("turn", {
             turn
         });*/
 
 		// Send out change of turn
-		socket.broadcast.emit("change-turn");
+		socket.broadcast.to(room).emit("change-turn");
 	});
+
+	socket.on("answer", (data) => {
+
+		console.log("in answer");
+
+		const rooms = getRooms();
+
+		rooms.forEach(n => {
+			if(n.id === data.roomID){
+				if(n.ans  === data.msg){
+					socket.broadcast.to(data.roomID).emit("check-answer", {"userID": data.userID, "boolean": true})
+
+					n.answeredCount = n.answeredCount + 1;
+					
+					if(n.answeredCount == n.count -1){
+						socket.broadcast.to(data.roomID)
+					}
+
+				}
+				else{
+					socket.emit("check-answer", {"userID": data.userID, "boolean": false})
+				}
+			}
+		})
+	})
+
 });
 
 // SERVE on port and start listening for API calls

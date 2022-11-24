@@ -34,7 +34,8 @@ function Tools(props) {
 
 	const Toggle = () => {
 		props.setTurn(true);
-		props.socket.emit("turn");
+		console.log("change of turn for room " + props.room);
+		props.socket.emit("turn", props.room);
 	};
 
 	const clearCanvas = () => {

@@ -31,9 +31,20 @@ export default function Room(props) {
 			toast.info(data.message);
 		});
 
+		props.socket.on("check-answer", (data) => {
+			if(data.userID === props.user.userID && data.boolean === true){
+				console.log("right answer");
+			}
+		})
+
 		props.socket.on("users", (data) => {
 			props.setUsers(data);
 			props.setUserNo(data.length);
+			console.log(props.users);
+			console.log(data);
+			console.log("user is ");
+			console.log(props.user);
+			console.log("================================================================");
 		});
 	}, []);
 
@@ -48,12 +59,11 @@ export default function Room(props) {
 	function sendMessage(msg) {
 		if (msg) {
 			setChats([...chats, [props.user.name, msg]]);
-			props.socket.emit("chat", [props.user.name, msg]);
+			props.socket.emit("chat", { "arr":[props.user.name, msg], "roomID": props.roomID});
 			setMsg("");
 		}
 	}
 
-	// TF IS THIS DOING ?
 	props.socket.on("chat", (msg) => {
 		// alert("hi bebi");
 		console.log(msg[0]);
@@ -99,18 +109,16 @@ export default function Room(props) {
 			</div>
 			<div className="flex flex-row">
 				<div className="h-[90vh] w-1/6 bg-blue-500 flex flex-col py-1 border-r-2 border-black">
-					<PlayerCards
-						name="Alpha"
-						rank={1}
-						textColor="text-black"
-						bgColor="bg-yellow-400"
-					/>
-					<PlayerCards
-						name="Beta"
-						rank={2}
-						textColor="text-black"
-						bgColor="bg-green-400"
-					/>
+					{props.users.map((item, index) => {
+						return (
+							<PlayerCards
+								name={item.name}
+								rank={index+1}
+								textColor="text-black"
+								bgColor="bg-yellow-400"
+							/>
+						);
+					})}
 				</div>
 				<div
 					className={
@@ -127,6 +135,7 @@ export default function Room(props) {
 						turn={props.turn}
 						setTurn={props.setTurn}
 						socket={props.socket}
+						room={props.user.roomID}
 					/>
 					{props.turn ? (
 						<>
@@ -138,6 +147,7 @@ export default function Room(props) {
 								elements={elements}
 								tool={"pencil"}
 								socket={props.socket}
+								room={props.user.roomID}
 							/>
 						</>
 					) : (
@@ -161,6 +171,9 @@ export default function Room(props) {
 						{chats.map((item, index) => {
 							return (
 								<ChatBubble
+									roomID={props.roomID}
+									user={props.user}
+									socket={props.socket}
 									key={index}
 									name={item[0]}
 									msg={item[1][1]}
