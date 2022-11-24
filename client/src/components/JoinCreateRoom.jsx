@@ -24,6 +24,8 @@ export default function JoinCreateRoom(props) {
 			host: props.turn,
 			presenter: props.turn,
 			number: 1,
+			points: 0,
+			answered: false,
 		});
 		props.setRoomJoined(true);
 		props.setTurn(true);
@@ -40,6 +42,8 @@ export default function JoinCreateRoom(props) {
 			roomID: joinRoomID,
 			host: props.turn,
 			presenter: props.turn,
+			points: 0,
+			answered: false,
 			// number: id_count,
 		});
 		props.setRoomJoined(true);
