@@ -6,6 +6,7 @@ import JoinCreateRoom from "./components/JoinCreateRoom";
 import { v4 as uuidv4 } from "uuid";
 
 import "./styles/style.css";
+import LoginSignUp from "./components/LoginSignUp";
 
 const name = "Abhijit";
 const userID = uuidv4();
@@ -50,6 +51,7 @@ const App = () => {
 	return (
 		<>
 			<ToastContainer />
+			{/* <LoginSignUp /> */}
 			{roomJoined ? (
 				<>
 					{turn ? (
