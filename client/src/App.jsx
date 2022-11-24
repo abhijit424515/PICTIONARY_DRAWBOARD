@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import "./styles/style.css";
 import LoginSignUp from "./components/LoginSignUp";
+import Leaderboard from "./components/Leaderboard";
 
 const name = "Abhijit";
 const userID = uuidv4();
@@ -33,8 +34,18 @@ const App = () => {
 	const [turn, setTurn] = useState(false);
 	const imgRef = useRef(null);
 
+	const [gameOver, setGameOver] = useState(false);
+	const [winners, setWinners] = useState([]);
+
 	const [roomID, setRoomID] = useState("");
-	const [prompts, setPrompts] = useState({'Windmill': false, 'Calendar': false, 'Boat': false, 'Dog': false, 'Umbrella': false, 'Bottle': false});
+	const [prompts, setPrompts] = useState({
+		Windmill: false,
+		Calendar: false,
+		Boat: false,
+		Dog: false,
+		Umbrella: false,
+		Bottle: false,
+	});
 
 	useEffect(() => {
 		if (roomJoined) {
@@ -54,37 +65,43 @@ const App = () => {
 			{/* <LoginSignUp /> */}
 			{roomJoined ? (
 				<>
-					{turn ? (
-						<Room
-							roomID={roomID}
-							userNo={userNo}
-							user={user}
-							socket={socket}
-							setUsers={setUsers}
-							setUserNo={setUserNo}
-							turn={turn}
-							setTurn={setTurn}
-							rounds={rounds}
-							prompts={prompts}
-							setPrompts={setPrompts}
-							users={users}
-						/>
+					{gameOver ? (
+						<Leaderboard winners={winners} />
 					) : (
-						<Room
-							roomID={roomID}
-							userNo={userNo}
-							user={user}
-							socket={socket}
-							setUsers={setUsers}
-							setUserNo={setUserNo}
-							turn={turn}
-							setTurn={setTurn}
-							rounds={rounds}
-							imgRef={imgRef}
-							prompts={prompts}
-							setPrompts={setPrompts}
-							users={users}
-						/>
+						<>
+							{turn ? (
+								<Room
+									roomID={roomID}
+									userNo={userNo}
+									user={user}
+									socket={socket}
+									setUsers={setUsers}
+									setUserNo={setUserNo}
+									turn={turn}
+									setTurn={setTurn}
+									rounds={rounds}
+									prompts={prompts}
+									setPrompts={setPrompts}
+									users={users}
+								/>
+							) : (
+								<Room
+									roomID={roomID}
+									userNo={userNo}
+									user={user}
+									socket={socket}
+									setUsers={setUsers}
+									setUserNo={setUserNo}
+									turn={turn}
+									setTurn={setTurn}
+									rounds={rounds}
+									imgRef={imgRef}
+									prompts={prompts}
+									setPrompts={setPrompts}
+									users={users}
+								/>
+							)}
+						</>
 					)}
 				</>
 			) : (

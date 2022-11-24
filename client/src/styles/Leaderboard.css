@@ -1,0 +1,88 @@
+.neu {
+	border-radius: 50px;
+	background: linear-gradient(0deg, #0284c7, #22d3ee);
+	/* box-shadow: 1px 1px 50px #aeb6c0; */
+}
+
+.first {
+	background-image: linear-gradient(
+		45deg,
+		#462523 0,
+		#cb9b51 22%,
+		#d9c563 45%,
+		#dcd794 50%,
+		#dfca63 55%,
+		#ba8d4a 78%,
+		#462523 100%
+	);
+	background-size: 200%;
+	color: transparent;
+	-webkit-background-clip: text;
+}
+
+.second {
+	background-image: linear-gradient(45deg, #262626, #c0bdbd, #262626);
+	background-size: 200%;
+	color: transparent;
+	-webkit-background-clip: text;
+}
+
+.third {
+	background-image: linear-gradient(45deg, #a97142, #8d582b, #714114, #562a00);
+	background-size: 200%;
+	color: transparent;
+	-webkit-background-clip: text;
+}
+
+/* waves */
+.ocean {
+	height: 80px; /* change the height of the waves here */
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow-x: hidden;
+}
+
+.wave {
+	background: url("/public/assets/wave.svg");
+	background-repeat: no-repeat;
+	position: absolute;
+	width: 1000%;
+	/* height: 100%; */
+	background-size: cover;
+	/* overflow: hidden; */
+	animation: wave 100s -30s linear infinite;
+	opacity: 0.2;
+}
+
+.wave:nth-of-type(2) {
+	bottom: 0;
+	animation: wave 180s linear reverse infinite;
+	opacity: 0.125;
+}
+
+.wave:nth-of-type(3) {
+	bottom: 0;
+	animation: wave 200s -10s linear infinite;
+	opacity: 0.125;
+}
+
+@keyframes wave {
+	0% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-10%);
+	}
+	50% {
+		transform: translateX(0);
+	}
+	75% {
+		transform: translateX(10%);
+	}
+	100% {
+		transform: translateX(0);
+	}
+}

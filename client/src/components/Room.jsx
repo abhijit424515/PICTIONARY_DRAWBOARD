@@ -8,6 +8,9 @@ import PlayerCards from "./PlayerCards";
 import ChatBubble from "./ChatBubble";
 import { Swatches, Tools } from "./SwatchesAndTools";
 import Canvas from "./Canvas";
+import QuestionChoose from "./QuestionChoose";
+
+const words = ["Alpha", "Beta", "Gamma"];
 
 function timeout(delay) {
 	return new Promise((res) => setTimeout(res, delay));
@@ -25,6 +28,7 @@ export default function Room(props) {
 	const [msg, setMsg] = useState("");
 
 	const [copied, setCopied] = useState(false);
+	const [questionChosen, setQuestionChosen] = useState(false);
 
 	useEffect(() => {
 		props.socket.on("message", (data) => {
@@ -44,7 +48,9 @@ export default function Room(props) {
 			console.log(data);
 			console.log("user is ");
 			console.log(props.user);
-			console.log("================================================================");
+			console.log(
+				"================================================================"
+			);
 		});
 	}, []);
 
@@ -59,7 +65,11 @@ export default function Room(props) {
 	function sendMessage(msg) {
 		if (msg) {
 			setChats([...chats, [props.user.name, msg]]);
-			props.socket.emit("chat", { "from":props.user.name, "msg" : msg, "roomID": props.roomID});
+			props.socket.emit("chat", {
+				from: props.user.name,
+				msg: msg,
+				roomID: props.roomID,
+			});
 			setMsg("");
 		}
 	}
@@ -67,8 +77,7 @@ export default function Room(props) {
 	props.socket.on("correct", (name) => {
 		if (props.user.name === name) {
 			toast.success("You got the right answer!");
-		}
-		else {
+		} else {
 			toast.success(name + " got the right answer!");
 		}
 	});
@@ -120,7 +129,7 @@ export default function Room(props) {
 						return (
 							<PlayerCards
 								name={item.name}
-								rank={index+1}
+								rank={index + 1}
 								textColor="text-black"
 								bgColor="bg-yellow-400"
 							/>
@@ -146,16 +155,23 @@ export default function Room(props) {
 					/>
 					{props.turn ? (
 						<>
-							<Canvas
-								canvasRef={canvasRef}
-								ctx={ctx}
-								color={color}
-								setElements={setElements}
-								elements={elements}
-								tool={"pencil"}
-								socket={props.socket}
-								room={props.user.roomID}
-							/>
+							{questionChosen ? (
+								<Canvas
+									canvasRef={canvasRef}
+									ctx={ctx}
+									color={color}
+									setElements={setElements}
+									elements={elements}
+									tool={"pencil"}
+									socket={props.socket}
+									room={props.user.roomID}
+								/>
+							) : (
+								<QuestionChoose
+									words={words}
+									setQuestionChosen={setQuestionChosen}
+								/>
+							)}
 						</>
 					) : (
 						<>
