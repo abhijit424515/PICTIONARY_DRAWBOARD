@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
-import { userJoin, getUsers, userLeave, getCount, updateNumbers, getRooms } from "./utils/user.js";
+import { userJoin, getUsers, userLeave, getCount, updateNumbers, getRooms, getAnswer } from "./utils/user.js";
 import { Server } from "socket.io";
 
 const app = express();
@@ -80,8 +80,16 @@ io.on("connection", (socket) => {
 
 	// Receive Chat from clients
 	socket.on("chat", (data) => {
-		// const { message, roomId } = data; // received data
-		socket.broadcast.to(data.roomID).emit("chat", data.arr);
+		// Check for correct answer
+		const answer = getAnswer(data.roomID);
+		console.log("answer is " + answer);
+		console.log("received answer is " + data.msg + ", given by " + data.from);
+		if (data.msg.toString().trim() === answer.toString().trim()){
+			io.in(data.roomID).emit("correct", data.from);
+		}
+		else {
+			socket.broadcast.to(data.roomID).emit("chat", {"from" : data.from, "msg" : data.msg});
+		}
 	});
 
 	// Receive change of turn and send changes to clients

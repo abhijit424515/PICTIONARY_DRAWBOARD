@@ -31,11 +31,11 @@ export default function Room(props) {
 			toast.info(data.message);
 		});
 
-		props.socket.on("check-answer", (data) => {
+		/*props.socket.on("check-answer", (data) => {
 			if(data.userID === props.user.userID && data.boolean === true){
 				console.log("right answer");
 			}
-		})
+		})*/
 
 		props.socket.on("users", (data) => {
 			props.setUsers(data);
@@ -59,16 +59,23 @@ export default function Room(props) {
 	function sendMessage(msg) {
 		if (msg) {
 			setChats([...chats, [props.user.name, msg]]);
-			props.socket.emit("chat", { "arr":[props.user.name, msg], "roomID": props.roomID});
+			props.socket.emit("chat", { "from":props.user.name, "msg" : msg, "roomID": props.roomID});
 			setMsg("");
 		}
 	}
 
+	props.socket.on("correct", (name) => {
+		if (props.user.name === name) {
+			toast.success("You got the right answer!");
+		}
+		else {
+			toast.success(name + " got the right answer!");
+		}
+	});
 	props.socket.on("chat", (msg) => {
-		// alert("hi bebi");
-		console.log(msg[0]);
-		console.log(msg[1]);
-		setChats([...chats, msg]);
+		console.log(msg.from);
+		console.log(msg.msg);
+		setChats([...chats, [msg.from, msg.msg]]);
 	});
 
 	return (
@@ -176,7 +183,7 @@ export default function Room(props) {
 									socket={props.socket}
 									key={index}
 									name={item[0]}
-									msg={item[1][1]}
+									msg={item[1]}
 									bgColor="bg-yellow-200"
 									textColor="text-black"
 								/>
@@ -190,7 +197,7 @@ export default function Room(props) {
 						className="p-3 h-[2rem] w-full border-2 border-black"
 						onKeyPress={(event) => {
 							if (event.key === "Enter") {
-								sendMessage([props.user.name, msg]);
+								sendMessage(msg);
 							}
 						}}
 					/>

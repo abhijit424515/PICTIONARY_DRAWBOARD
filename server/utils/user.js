@@ -72,4 +72,9 @@ const getRooms = () => {
 	return rooms;
 }
 
-export { userJoin, userLeave, getUsers, getCount, updateNumbers, getRooms};
+const getAnswer = (room) => {
+	console.log(room);
+	return rooms[rooms.findIndex((thisroom) => thisroom['id'] === room)]['ans'];
+}
+
+export { userJoin, userLeave, getUsers, getCount, updateNumbers, getRooms, getAnswer};
