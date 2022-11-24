@@ -9,9 +9,9 @@ import ChatBubble from "./ChatBubble";
 import { Swatches, Tools } from "./SwatchesAndTools";
 import Canvas from "./Canvas";
 import QuestionChoose from "./QuestionChoose";
+import * as db from "../../../server/utils/user.js";
 
 const words = ["Alpha", "Beta", "Gamma"];
-import * as db from "../../../server/utils/user.js";
 
 function timeout(delay) {
 	return new Promise((res) => setTimeout(res, delay));
@@ -69,18 +69,6 @@ export default function Room(props) {
 				guess(data);
 			}
 		});
-
-		props.socket.on("correct", (data) => {
-			console.log("correct answer by");
-			if (props.user.userID === data.fromID) {
-				setCanChat(false);
-				toast.success("You got the right answer!");
-			} else {
-				console.log("correct answer received from here");
-				console.log(data);
-				guess(data);
-			}
-		});
 	}, []);
 
 	function guess(data) {
@@ -107,30 +95,27 @@ export default function Room(props) {
 				from: props.user.name,
 				msg: msg,
 				roomID: props.roomID,
-			});
-			setMsg("");
-			props.socket.emit("chat", {
-				from: props.user.name,
-				msg: msg,
-				roomID: props.roomID,
 				fromID: props.user.userID,
 			});
 		}
 		setMsg("");
 	}
 
-	props.socket.on("correct", (name) => {
-		if (props.user.name === name) {
-			toast.success("You got the right answer!");
-		} else {
-			toast.success(name + " got the right answer!");
-		}
-	});
+	// props.socket.on("correct", (name) => {
+	// 	if (props.user.name === name) {
+	// 		toast.success("You got the right answer!");
+	// 	} else {
+	// 		toast.success(name + " got the right answer!");
+	// 	}
+	// });
+
+	// useEffect(() => {
 	props.socket.on("chat", (msg) => {
 		console.log(msg.from);
 		console.log(msg.msg);
 		setChats([...chats, [msg.from, msg.msg]]);
 	});
+	// }, []);
 
 	return (
 		<>

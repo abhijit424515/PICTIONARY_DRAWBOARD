@@ -38,14 +38,7 @@ const App = () => {
 	const [winners, setWinners] = useState([]);
 
 	const [roomID, setRoomID] = useState("");
-	const [prompts, setPrompts] = useState({
-		Windmill: false,
-		Calendar: false,
-		Boat: false,
-		Dog: false,
-		Umbrella: false,
-		Bottle: false,
-	});
+	const [prompts, setPrompts] = useState();
 
 	useEffect(() => {
 		if (roomJoined) {
