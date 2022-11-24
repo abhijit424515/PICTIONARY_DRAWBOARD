@@ -31,6 +31,12 @@ export default function Room(props) {
 			toast.info(data.message);
 		});
 
+		props.socket.on("check-answer", (data) => {
+			if(data.userID === props.user.userID && data.boolean === true){
+				console.log("right answer");
+			}
+		})
+
 		props.socket.on("users", (data) => {
 			props.setUsers(data);
 			props.setUserNo(data.length);
@@ -53,7 +59,7 @@ export default function Room(props) {
 	function sendMessage(msg) {
 		if (msg) {
 			setChats([...chats, [props.user.name, msg]]);
-			props.socket.emit("chat", [props.user.name, msg]);
+			props.socket.emit("chat", { "arr":[props.user.name, msg], "roomID": props.roomID});
 			setMsg("");
 		}
 	}
@@ -103,11 +109,11 @@ export default function Room(props) {
 			</div>
 			<div className="flex flex-row">
 				<div className="h-[90vh] w-1/6 bg-blue-500 flex flex-col py-1 border-r-2 border-black">
-					{props.users.map((item) => {
+					{props.users.map((item, index) => {
 						return (
 							<PlayerCards
 								name={item.name}
-								rank={item.number}
+								rank={index+1}
 								textColor="text-black"
 								bgColor="bg-yellow-400"
 							/>
@@ -165,6 +171,9 @@ export default function Room(props) {
 						{chats.map((item, index) => {
 							return (
 								<ChatBubble
+									roomID={props.roomID}
+									user={props.user}
+									socket={props.socket}
 									key={index}
 									name={item[0]}
 									msg={item[1][1]}
