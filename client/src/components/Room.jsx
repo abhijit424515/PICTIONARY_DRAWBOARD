@@ -11,6 +11,7 @@ import Canvas from "./Canvas";
 import QuestionChoose from "./QuestionChoose";
 
 const words = ["Alpha", "Beta", "Gamma"];
+import * as db from "../../../server/utils/user.js";
 
 function timeout(delay) {
 	return new Promise((res) => setTimeout(res, delay));
@@ -22,10 +23,13 @@ export default function Room(props) {
 	const [color, setColor] = useState("#000000");
 	const [elements, setElements] = useState([]);
 	const [history, setHistory] = useState([]);
+	// const [myuser, setMyUser] = useState(props.user);
+	// const [listofusers, setListOfUsers] = useState([]);
 
 	const [rounds, setRounds] = useState(1);
 	const [chats, setChats] = useState([]);
 	const [msg, setMsg] = useState("");
+	const [canChat, setCanChat] = useState(true);
 
 	const [copied, setCopied] = useState(false);
 	const [questionChosen, setQuestionChosen] = useState(false);
@@ -42,6 +46,7 @@ export default function Room(props) {
 		})*/
 
 		props.socket.on("users", (data) => {
+			// setListOfUsers(db.getUsers(props.user.room));
 			props.setUsers(data);
 			props.setUserNo(data.length);
 			console.log(props.users);
@@ -52,7 +57,35 @@ export default function Room(props) {
 				"================================================================"
 			);
 		});
+
+		props.socket.on("correct", (data) => {
+			console.log("correct answer by");
+			if (props.user.userID === data.fromID) {
+				setCanChat(false);
+				toast.success("You got the right answer!");
+			} else {
+				console.log("correct answer received from here");
+				console.log(data);
+				guess(data);
+			}
+		});
+
+		props.socket.on("correct", (data) => {
+			console.log("correct answer by");
+			if (props.user.userID === data.fromID) {
+				setCanChat(false);
+				toast.success("You got the right answer!");
+			} else {
+				console.log("correct answer received from here");
+				console.log(data);
+				guess(data);
+			}
+		});
 	}, []);
+
+	function guess(data) {
+		toast.success(data.from + " got the right answer!");
+	}
 
 	useEffect(() => {
 		if (!props.turn) {
@@ -62,8 +95,13 @@ export default function Room(props) {
 		}
 	}, [props.turn]);
 
+	useEffect(() => {
+		console.log("users has been changed to ");
+		console.log(props.users);
+	}, [props.users]);
+
 	function sendMessage(msg) {
-		if (msg) {
+		if (msg && canChat) {
 			setChats([...chats, [props.user.name, msg]]);
 			props.socket.emit("chat", {
 				from: props.user.name,
@@ -71,7 +109,14 @@ export default function Room(props) {
 				roomID: props.roomID,
 			});
 			setMsg("");
+			props.socket.emit("chat", {
+				from: props.user.name,
+				msg: msg,
+				roomID: props.roomID,
+				fromID: props.user.userID,
+			});
 		}
+		setMsg("");
 	}
 
 	props.socket.on("correct", (name) => {

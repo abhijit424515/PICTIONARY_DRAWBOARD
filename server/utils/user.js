@@ -1,16 +1,17 @@
 const users = [];
 const rooms = [];
+const globalPrompts = ['Windmill', 'Calendar', 'Boat', 'Dog', 'Umbrella', 'Bottle', 'Lamp', 'Sun', 'Mountain', 'River']
 
 // Join user to chat
-const userJoin = (id, number, name, room, host, presenter) => {
-	const user = { id, number, name, room, host, presenter };
+const userJoin = (userID, id, number, name, room, host, presenter, points, answered) => {
+	const user = { userID, id, number, name, room, host, presenter, points, answered };
 	users.push(user);
 
 	const roomIndex = rooms.findIndex((thisroom) => thisroom.id.toString() === room.toString());
 	console.log("room inserting " + room.toString());
 	console.log(roomIndex);
 	if (roomIndex === -1) {
-		const room_entry = {'id' : room, 'count' : 1, 'ans': 'NULL', 'answeredCount':0};
+		const room_entry = {'id' : room, 'count' : 1, 'ans': 'NULL', 'answeredCount':0, 'prompts' : new Array(globalPrompts.length).fill(0), 'promptsDone' : 0};
 		rooms.push(room_entry);
 	}
 	else {
@@ -49,6 +50,15 @@ const getUsers = (room) => {
 	return RoomUsers;
 };
 
+export const fetchUser = (id) => {
+	const index = users.findIndex((user) => user.userID === id);
+
+    if (index!== -1) {
+        const user = users[index];
+        return user;
+    }
+}
+
 // Get number of users present in room
 const getCount = (room) => {
 	const ind = rooms.findIndex((thisroom) => thisroom['id']===room);
@@ -58,7 +68,7 @@ const getCount = (room) => {
 	else {
 		return rooms[ind]['count'];
 	}
-}
+};
 
 const updateNumbers = (roomID, num) => {
 	users.forEach(n => {
@@ -66,15 +76,85 @@ const updateNumbers = (roomID, num) => {
 			n.number = n.number - 1;
 		}
 	})
-}
+};
 
 const getRooms = () => {
 	return rooms;
-}
+};
 
 const getAnswer = (room) => {
 	console.log(room);
 	return rooms[rooms.findIndex((thisroom) => thisroom['id'] === room)]['ans'];
+};
+
+export const setCorrect = (userID) => {
+	const index = users.findIndex((user) => user.userID === userID);
+
+    if (index!== -1) {
+        users[index].answered = true;
+    }
+};
+
+export const updatePoints = (userID, points) => {
+	const index = users.findIndex((user) => user.userID === userID);
+
+    if (index!== -1) {
+        users[index]['points'] += points;
+    }
+};
+
+export const resetAfterRound = (room) => {
+	users.forEach((user) => {
+		if (user.room === room) {
+			user['answered'] = false;
+		}
+	});
+};
+
+export const getNewPrompts = (room) => {
+	const index = rooms.findIndex((thisroom) => thisroom.id === room);
+	if (rooms[index]['promptsDone']==globalPrompts.length){
+		return;
+	} 
+	let prompts = {'words' : [], 'indices' : []};
+	let count = 0;
+	if (index !== -1){
+		while (count < 3){
+			const num = Math.floor(Math.random() *globalPrompts.length);
+			if (rooms[index]['prompts'][num]===0){
+				rooms[index]['prompts'][num] = 1;
+				prompts['indices'].push(num);
+				prompts['words'].push(globalPrompts[num]);
+				count++;
+			}
+		}
+		rooms[index]['promptsDone'] += 1;
+		return prompts;
+	}
+};
+
+export const addBackPrompts = (prompts, room) => {
+	const index = rooms.findIndex((thisroom) => thisroom.id === room);
+    if (index!== -1) {
+        rooms[index]['prompts'][prompts[0]] = 0;
+        rooms[index]['prompts'][prompts[1]] = 0;
+    }
+}
+
+export const updateRoomAnswer = (room, answer) => {
+	const index = rooms.findIndex((thisroom) => thisroom.id === room);
+
+    if (index!== -1) {
+        rooms[index]['ans'] = answer;
+    }
+};
+
+export const updateAnswered = (userID) => {
+	const index = users.findIndex((user) => user.userID === userID);
+
+    if (index!== -1) {
+        users[index].answered = true;
+    }
 }
 
 export { userJoin, userLeave, getUsers, getCount, updateNumbers, getRooms, getAnswer};

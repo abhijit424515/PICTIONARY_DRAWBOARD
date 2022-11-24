@@ -1,8 +1,8 @@
 import express from "express";
 import http from "http";
 import cors from "cors";
-import { userJoin, getUsers, userLeave, getCount, updateNumbers, getRooms, getAnswer } from "./utils/user.js";
 import { Server } from "socket.io";
+import * as db from "./utils/user.js";
 
 const app = express();
 app.use(cors());
@@ -36,13 +36,13 @@ io.on("connection", (socket) => {
 	socket.on("user-joined", (data) => {
 		//id_count++;
 		
-		const { roomID, userID, name, host, presenter, number } = data; // received data
+		const { roomID, userID, name, host, presenter, number, points, answered } = data; // received data
 		// console.log(data);
 		userRoom = roomID;
 		console.log(roomID);
-		const count_in_room  = getCount(roomID);
-		const user = userJoin(socket.id, count_in_room+1, name, roomID, host, presenter); // add user to chat
-		const roomUsers = getUsers(user.room); // get all users present in this room
+		const count_in_room  = db.getCount(roomID);
+		const user = db.userJoin(userID, socket.id, count_in_room+1, name, roomID, host, presenter, points, answered); // add user to chat
+		const roomUsers = db.getUsers(user.room); // get all users present in this room
 		socket.join(user.room); // user joins the room
 		socket.emit("message", {
 			message: "Welcome to ChatRoom",
@@ -63,29 +63,32 @@ io.on("connection", (socket) => {
 
 	// DISCONNECT socket function called by client
 	socket.on("disconnect", () => {
-		const userLeaves = userLeave(socket.id);
+		const userLeaves = db.userLeave(socket.id);
 
 		if (userLeaves) {
 
-			const roomUsers = getUsers(userLeaves.room);
+			const roomUsers = db.getUsers(userLeaves.room);
 
 			io.to(userLeaves.room).emit("message", {
 				message: `${userLeaves.name} left the chat`,
 			});
 			io.to(userLeaves.room).emit("users", roomUsers);
 
-			updateNumbers(userLeaves.room, userLeaves.number);
+			db.updateNumbers(userLeaves.room, userLeaves.number);
 		}
 	});
 
 	// Receive Chat from clients
 	socket.on("chat", (data) => {
 		// Check for correct answer
-		const answer = getAnswer(data.roomID);
+		const answer = db.getAnswer(data.roomID);
 		console.log("answer is " + answer);
 		console.log("received answer is " + data.msg + ", given by " + data.from);
 		if (data.msg.toString().trim() === answer.toString().trim()){
-			io.in(data.roomID).emit("correct", data.from);
+			if (db.fetchUser(data.fromID)['answered']==false){
+				io.in(data.roomID).emit("correct", {"from" : data.from, "fromID" : data.fromID});
+				db.updateAnswered(data.fromID);
+			}
 		}
 		else {
 			socket.broadcast.to(data.roomID).emit("chat", {"from" : data.from, "msg" : data.msg});
@@ -108,7 +111,7 @@ io.on("connection", (socket) => {
 
 		console.log("in answer");
 
-		const rooms = getRooms();
+		const rooms = db.getRooms();
 
 		rooms.forEach(n => {
 			if(n.id === data.roomID){
