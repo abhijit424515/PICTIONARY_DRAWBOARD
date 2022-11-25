@@ -30,6 +30,7 @@ We are currently using the following languages/libraries/frameworks/softwares :
 
 ## The Game
 
+Server port is mentioned in the `env` file, which is not included in the github repo for security reasons.
 ### Creating and Joining Rooms
 
 - We created a room for each game instance, and generated a corresponding unique room ID.
