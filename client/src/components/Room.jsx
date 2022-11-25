@@ -11,8 +11,6 @@ import Canvas from "./Canvas";
 import QuestionChoose from "./QuestionChoose";
 import * as db from "../../../server/utils/user.js";
 
-const words = ["Alpha", "Beta", "Gamma"];
-
 function timeout(delay) {
 	return new Promise((res) => setTimeout(res, delay));
 }
@@ -33,10 +31,16 @@ export default function Room(props) {
 
 	const [copied, setCopied] = useState(false);
 	const [questionChosen, setQuestionChosen] = useState(false);
+	const [words, setWords] = useState([]);
+	const [indices, setIndices] = useState([]);
 
 	useEffect(() => {
 		props.socket.on("message", (data) => {
 			toast.info(data.message);
+		});
+
+		props.socket.on("change-turn", () => {
+			props.setTurn(false);
 		});
 
 		/*props.socket.on("check-answer", (data) => {
@@ -58,6 +62,16 @@ export default function Room(props) {
 			);
 		});
 
+		props.socket.on("prompt", (data) => {
+			console.log(data);
+			if (data.drawerID === props.user.userID){
+				console.log("Now the drawer");
+				Toggle();
+				setWords(data.words);
+				setIndices(data.indices);
+			}
+		});
+
 		props.socket.on("correct", (data) => {
 			console.log("correct answer by");
 			if (props.user.userID === data.fromID) {
@@ -71,9 +85,19 @@ export default function Room(props) {
 		});
 	}, []);
 
+	const Toggle = () => {
+		props.setTurn(true);
+		console.log("change of turn for room " + props.roomID);
+		props.socket.emit("turn", props.roomID);
+	};
+
 	function guess(data) {
 		toast.success(data.from + " got the right answer!");
 	}
+
+	useEffect (() => {
+		props.socket.emit("request-prompt", props.roomID);
+	});
 
 	useEffect(() => {
 		if (!props.turn) {
@@ -87,6 +111,10 @@ export default function Room(props) {
 		console.log("users has been changed to ");
 		console.log(props.users);
 	}, [props.users]);
+
+	useEffect (() => {
+		props.socket.emit("reclaim-prompt", indices)
+	}, [props.prompts]);
 
 	function sendMessage(msg) {
 		if (msg && canChat) {
@@ -200,6 +228,8 @@ export default function Room(props) {
 								<QuestionChoose
 									words={words}
 									setQuestionChosen={setQuestionChosen}
+									setPrompts={props.setPrompts}
+									setIndices={setIndices}
 								/>
 							)}
 						</>

@@ -34,9 +34,7 @@ io.on("connection", (socket) => {
 	// USER JOIN socket function called by client
 	socket.on("user-joined", (data) => {
 		//id_count++;
-
-		const { roomID, userID, name, host, presenter, number, points, answered } =
-			data; // received data
+		const { roomID, userID, name, host, presenter, number, points, answered } = data; // received data
 		// console.log(data);
 		userRoom = roomID;
 		console.log(roomID);
@@ -94,20 +92,16 @@ io.on("connection", (socket) => {
 		console.log("answer is " + answer);
 		console.log("received answer is " + data.msg + ", given by " + data.from);
 		if (data.msg.toString().trim() === answer.toString().trim()) {
-			if (
-				db.fetchUser(data.fromID) &&
-				db.fetchUser(data.fromID)["answered"] == false
-			) {
+			if (db.fetchUser(data.fromID) && db.fetchUser(data.fromID)["answered"] == false) {
 				io.in(data.roomID).emit("correct", {
 					from: data.from,
 					fromID: data.fromID,
 				});
 				db.updateAnswered(data.fromID);
 			}
-		} else {
-			socket.broadcast
-				.to(data.roomID)
-				.emit("chat", { from: data.from, msg: data.msg });
+		} 
+		else {
+			socket.broadcast.to(data.roomID).emit("chat", { from: data.from, msg: data.msg });
 		}
 	});
 
@@ -123,7 +117,21 @@ io.on("connection", (socket) => {
 		socket.broadcast.to(room).emit("change-turn");
 	});
 
-	socket.on("answer", (data) => {
+	// Send Prompts to clients
+	socket.on("request-prompt", (room)=>{
+		if (db.getCount(room) > 0) {
+			if (db.checkIfRound(room)){
+				const drawer = db.getDrawer(room);
+				const prompts = db.getNewPrompts(room);
+				console.log("new drawer is " + drawer);
+				console.log(prompts);
+				console.log("prompts requested at " + room);
+				socket.in(room).emit("prompt", {'drawerID' : drawer, 'words' : prompts['words'], 'indices' : prompts['indices']});
+			}
+		}
+	});
+
+	/*socket.on("answer", (data) => {
 		console.log("in answer");
 
 		const rooms = db.getRooms();
@@ -145,7 +153,7 @@ io.on("connection", (socket) => {
 				}
 			}
 		});
-	});
+	});*/
 });
 
 // SERVE on port and start listening for API calls

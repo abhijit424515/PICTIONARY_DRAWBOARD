@@ -1,9 +1,11 @@
 import React from "react";
 
-export default function QuestionChoose({ words, setQuestionChosen }) {
-	const question = (x) => {
+export default function QuestionChoose({ words, setQuestionChosen, setPrompts, setIndices }) {
+	const question = (x, i1, i2) => {
 		console.log(x);
 		setQuestionChosen(true);
+		setPrompts(x);
+		setIndices([i1, i2]);
 	};
 
 	return (
@@ -22,19 +24,19 @@ export default function QuestionChoose({ words, setQuestionChosen }) {
 					<div className="h-[12.5%] w-2/3 flex flex-row justify-between items-center">
 						<button
 							className="w-1/4 h-full border-2 border-black"
-							onClick={() => question(words[0])}
+							onClick={() => question(words[0], 1, 2)}
 						>
 							{words[0]}
 						</button>
 						<button
 							className="w-1/4 h-full border-2 border-black"
-							onClick={() => question(words[1])}
+							onClick={() => question(words[1], 0, 2)}
 						>
 							{words[1]}
 						</button>
 						<button
 							className="w-1/4 h-full border-2 border-black"
-							onClick={() => question(words[2])}
+							onClick={() => question(words[2], 0, 1)}
 						>
 							{words[2]}
 						</button>
