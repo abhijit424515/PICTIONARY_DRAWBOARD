@@ -36,7 +36,6 @@ export default function Room(props) {
 	const [indices, setIndices] = useState([]);
 
 	const [bogus, setBogus] = useState(0);
-	
 
 	// const [roundStartTime, setRoundStartTime] = useState(new Date());
 	// const [roundOver, setRoundOver] = useState(false);
@@ -92,7 +91,7 @@ export default function Room(props) {
 			console.log(points);
 			setBogus(points);
 		});*/
-		props.socket.on("change-points", (data)=>{
+		props.socket.on("change-points", (data) => {
 			props.setUsers(data);
 		});
 
@@ -144,7 +143,7 @@ export default function Room(props) {
 			setRounds(data.round);
 			setCanChat(true);
 
-			if (data.round == 2) {
+			if (data.round == 6) {
 				props.setGameOver(true);
 				props.setWinners(data.winners);
 			}
