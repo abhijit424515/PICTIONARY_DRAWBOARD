@@ -16,7 +16,7 @@ const rounds = 5;
 const server = "http://localhost:5000";
 const connectionOptions = {
 	"force new connection": true,
-	reconnectionAttempts: 0,
+	reconnectionAttempts: "Infinity",
 	timeout: 10000,
 	transports: ["websocket"],
 };

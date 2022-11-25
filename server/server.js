@@ -98,6 +98,23 @@ io.on("connection", (socket) => {
 					fromID: data.fromID,
 				});
 				db.updateAnswered(data.fromID);
+
+				if(db.checkAllAnswered(data.roomID) === true){
+
+					console.log("turn over");
+
+					const newDrawer = db.getDrawer(data.roomID);
+					console.log("newDrawer is " + newDrawer);
+					console.log("over here");
+					const newPrompts = db.getNewPrompts(data.roomID);
+					console.log("after getting prompts");
+					console.log("newPrompts are " + newPrompts);
+					db.resetAfterTurn(data.roomId);
+					db.updateAnswered(newDrawer);
+
+					console.log("about to emit");
+					socket.to(data.roomID).emit("prompt", {'drawerID': newDrawer, 'words': newPrompts.words, 'indices': newPrompts.indices });
+				}
 			}
 		} 
 		else {
@@ -121,14 +138,18 @@ io.on("connection", (socket) => {
 	socket.on("request-prompt", (room)=>{
 		if (db.getCount(room) > 0) {
 			if (db.checkIfRound(room)){
-				const drawer = db.getDrawer(room);
+				const drawer = db.retFirstUserinRoom(room);
 				const prompts = db.getNewPrompts(room);
 				console.log("new drawer is " + drawer);
 				console.log(prompts);
 				console.log("prompts requested at " + room);
-				socket.in(room).emit("prompt", {'drawerID' : drawer, 'words' : prompts['words'], 'indices' : prompts['indices']});
+				socket.in(room).emit("prompt", {'drawerID' : drawer, 'words' : prompts.words, 'indices' : prompts['indices']});
 			}
 		}
+	});
+
+	socket.on("setAns", (data) =>{
+		db.setAns(data.roomID, data.ans);
 	});
 
 	/*socket.on("answer", (data) => {

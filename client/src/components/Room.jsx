@@ -34,7 +34,15 @@ export default function Room(props) {
 	const [words, setWords] = useState([]);
 	const [indices, setIndices] = useState([]);
 
+
+	const Toggle = () => {
+		props.setTurn(true);
+		console.log("change of turn for room " + props.roomID);
+		props.socket.emit("turn", props.roomID);
+	};
+
 	useEffect(() => {
+
 		props.socket.on("message", (data) => {
 			toast.info(data.message);
 		});
@@ -63,6 +71,8 @@ export default function Room(props) {
 		});
 
 		props.socket.on("prompt", (data) => {
+			console.log("got prompt in socket");
+			console.log("present userID " + props.user.userID);
 			console.log(data);
 			if (data.drawerID === props.user.userID){
 				console.log("Now the drawer");
@@ -85,19 +95,13 @@ export default function Room(props) {
 		});
 	}, []);
 
-	const Toggle = () => {
-		props.setTurn(true);
-		console.log("change of turn for room " + props.roomID);
-		props.socket.emit("turn", props.roomID);
-	};
-
 	function guess(data) {
 		toast.success(data.from + " got the right answer!");
 	}
 
 	useEffect (() => {
 		props.socket.emit("request-prompt", props.roomID);
-	});
+	}, []);
 
 	useEffect(() => {
 		if (!props.turn) {
@@ -230,6 +234,8 @@ export default function Room(props) {
 									setQuestionChosen={setQuestionChosen}
 									setPrompts={props.setPrompts}
 									setIndices={setIndices}
+									socket={props.socket}
+									roomID={props.roomID}
 								/>
 							)}
 						</>

@@ -11,7 +11,7 @@ const userJoin = (userID, id, number, name, room, host, presenter, points, answe
 	console.log("room inserting " + room.toString());
 	console.log(roomIndex);
 	if (roomIndex === -1) {
-		const room_entry = {'id' : room, 'count' : 1, 'ans': 'NULL', 'answeredCount':0, 'prompts' : new Array(globalPrompts.length).fill(0), 'promptsDone' : 0, 'drawer' : 1};
+		const room_entry = {'id' : room, 'count' : 1, 'ans': 'NULL', 'answeredCount':0, 'prompts' : new Array(globalPrompts.length).fill(0), 'promptsDone' : 1, 'drawer' : 1};
 		rooms.push(room_entry);
 	}
 	else {
@@ -54,13 +54,26 @@ export const getDrawer = (room) => {
 	const rIndex = rooms.findIndex((r) => r.id === room);
 	const drawIndex = rooms[rIndex].drawer;
 	console.log("drawindex " + drawIndex);
-	if (drawIndex!== -1) {
-		console.log(getUsers(room));
-        const userIndex = getUsers(room).findIndex((u) => u.number === drawIndex);
-		if (userIndex!== -1) {
-			return users[userIndex].userID;
-		}
-	}
+	// if (drawIndex!== -1) {
+	// 	console.log(getUsers(room));
+    //     const userIndex = getUsers(room).findIndex((u) => u.number === drawIndex);
+	// 	if (userIndex!== -1) {
+	// 		return users[userIndex].userID;
+	// 	}
+	// }
+
+	// const myusers = getUsers(room);
+
+	// if(drawIndex >= myusers.length){
+	// 	return myusers[0].userID;
+	// }
+	// else{
+	// 	return myusers[drawIndex].userID;
+	// }
+
+	rooms[rIndex].drawer += 1;
+
+	return getUsers(room)[drawIndex].userID;
 }
 
 export const fetchUser = (id) => {
@@ -135,18 +148,23 @@ export const checkIfRound = (room) => {
 }
 
 export const getNewPrompts = (room) => {
+	console.log("in getNewPrompts");
 	const index = rooms.findIndex((thisroom) => thisroom.id === room);
 	console.log("index" + index);
 	console.log(rooms);
-	if (index!==-1 && rooms[index]['promptsDone']==globalPrompts.length){
+	if (index==-1 || rooms[index]['promptsDone']==globalPrompts.length){
+		console.log("returning null");
 		return;
 	} 
 	let prompts = {'words' : [], 'indices' : []};
 	let count = 0;
 	if (index !== -1){
 		while (count < 3){
+			console.log("in while loop")
 			const num = Math.floor(Math.random() *globalPrompts.length);
-			if (rooms[index]['prompts'][num]===0){
+			console.log(num);
+			console.log(rooms[index]['prompts'][num]);
+			if (rooms[index]['prompts'][num]===0 || true){
 				rooms[index]['prompts'][num] = 1;
 				prompts['indices'].push(num);
 				prompts['words'].push(globalPrompts[num]);
@@ -154,6 +172,7 @@ export const getNewPrompts = (room) => {
 			}
 		}
 		rooms[index]['promptsDone'] += 1;
+		console.log("returning prompts");
 		return prompts;
 	}
 };
@@ -180,6 +199,44 @@ export const updateAnswered = (userID) => {
     if (index!== -1) {
         users[index].answered = true;
     }
+}
+
+export const setAns = (roomID, ans) => {
+	const index = rooms.findIndex((r) => r.id === roomID);
+
+	if(index !== -1){
+		rooms[index].ans = ans;
+	}
+}
+
+export const checkAllAnswered = (roomID) => {
+	const myusers = getUsers(roomID);
+
+	let flag = true;
+
+	myusers.forEach((thisuser) => {
+		console.log("is true/false --- " + thisuser.answered);
+		if(thisuser.answered === false){
+			console.log("returning false");
+			flag = false;
+		}
+	})
+
+	return flag;
+}
+
+export const resetAfterTurn = (room) => {
+	users.forEach((user) => {
+		if (user.room === room) {
+			user['answered'] = false;
+		}
+	});
+};
+
+export const retFirstUserinRoom = (room) => {
+	const myusers = getUsers(room);
+	myusers[0].answered = true;
+	return myusers[0].userID;
 }
 
 export { userJoin, userLeave, getUsers, getCount, updateNumbers, getRooms, getAnswer};
