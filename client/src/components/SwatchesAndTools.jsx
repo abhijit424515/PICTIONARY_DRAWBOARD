@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
 
-const ROUND_TIME = 20;
+const ROUND_TIME = 60;
 
 const colors = [
 	"#800000",

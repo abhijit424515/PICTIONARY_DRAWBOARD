@@ -162,12 +162,28 @@ export const setCorrect = (userID) => {
 	}
 };
 
-export const updatePoints = (userID, points) => {
+export const updatePoints = (userID, roomID) => {
 	const index = users.findIndex((user) => user.userID === userID);
+	const roomIndex = rooms.findIndex((r) => r.id === roomID);
+	const myusers = getUsers(roomID);
 
+	let count = 0;
+
+	myusers.forEach(u => {
+		if(u.answered === true){
+			count++;
+		}
+	});
+
+	console.log(count + " users have already answered out of a total " + rooms[roomIndex].count);
+	const points = 100*(1 - (count - 1)/(rooms[roomIndex].count));
 	if (index !== -1) {
 		users[index]["points"] += points;
 	}
+};
+
+export const getPointArray = (room) => {
+    return getUsers(room).map((user) => user.points);
 };
 
 export const resetAfterRound = (room) => {
@@ -176,6 +192,10 @@ export const resetAfterRound = (room) => {
 			user["answered"] = false;
 		}
 	});
+	const index = rooms.findIndex((r) => r.id === room);
+	if (index!== -1) {
+		rooms[index]['answeredCount'] = 0;
+	}
 };
 
 export const checkIfRound = (room) => {
@@ -239,9 +259,18 @@ export const updateRoomAnswer = (room, answer) => {
 
 export const updateAnswered = (userID) => {
 	const index = users.findIndex((user) => user.userID === userID);
+	const roomIndex = rooms.findIndex((r) => r.id === users[index].room);
 
 	if (index !== -1) {
 		users[index].answered = true;
+	}
+};
+
+export const increaseAnswered = (room) => {
+	const roomIndex = rooms.findIndex((r) => r.id === room);
+
+	if(roomIndex !== -1){
+		rooms[roomIndex].answeredCount += 1;
 	}
 };
 
@@ -308,8 +337,8 @@ export const getRound = (room) => {
 
 export const getWinners = (room) => {
 	const myusers = [...getUsers(room)];
-	myusers.sort((u1, u2) => u1.points - u2.points);
-	const winners = myusers.slice(0, 3).map((u) => u.name);
+	myusers.sort((u1, u2) => u2.points - u1.points);
+	const winners = myusers.slice(0, 3).map((u) => [u.name, u.points]);
 	console.log(winners);
 	return winners;
 };

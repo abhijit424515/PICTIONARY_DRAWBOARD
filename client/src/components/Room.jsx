@@ -34,6 +34,9 @@ export default function Room(props) {
 	const [words, setWords] = useState([]);
 	const [indices, setIndices] = useState([]);
 
+	const [bogus, setBogus] = useState(0);
+	
+
 	// const [roundStartTime, setRoundStartTime] = useState(new Date());
 	// const [roundOver, setRoundOver] = useState(false);
 
@@ -70,6 +73,7 @@ export default function Room(props) {
 		})*/
 
 		props.socket.on("users", (data) => {
+			console.log("*********RECEIVED USERS*************");
 			// setListOfUsers(db.getUsers(props.user.room));
 			props.setUsers(data);
 			props.setUserNo(data.length);
@@ -80,6 +84,15 @@ export default function Room(props) {
 			console.log(
 				"================================================================"
 			);
+		});
+
+		/*props.socket.on("change-points", (points)=>{
+			console.log("*******************Received Points*********************");
+			console.log(points);
+			setBogus(points);
+		});*/
+		props.socket.on("change-points", (data)=>{
+			props.setUsers(data);
 		});
 
 		props.socket.on("prompt", (data) => {
@@ -128,7 +141,7 @@ export default function Room(props) {
 			setRounds(data.round);
 			setCanChat(true);
 
-			if (data.round == 6) {
+			if (data.round == 2) {
 				props.setGameOver(true);
 				props.setWinners(data.winners);
 			}
@@ -241,6 +254,7 @@ export default function Room(props) {
 								key={index}
 								name={item.name}
 								rank={index + 1}
+								score={Math.round(item.points)}
 								textColor="text-black"
 								bgColor="bg-yellow-400"
 							/>
