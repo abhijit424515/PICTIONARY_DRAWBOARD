@@ -39,6 +39,22 @@ const App = () => {
 
 	const [roomID, setRoomID] = useState("");
 	const [prompts, setPrompts] = useState();
+	const [gameStarted, setGameStarted] = useState(false);
+
+	const [roundStartTime, setRoundStartTime] = useState(new Date());
+	const [roundOver, setRoundOver] = useState(false);
+
+	const startRound = () => {
+		setRoundStartTime(new Date());
+	};
+
+	useEffect(() => {
+		socket.on("game-started", () => {
+			console.log("received gamestart");
+			// startRound();
+			// setGameStarted(true);
+		});
+	}, []);
 
 	useEffect(() => {
 		if (roomJoined) {
@@ -79,6 +95,13 @@ const App = () => {
 									setPrompts={setPrompts}
 									setGameOver={setGameOver}
 									setWinners={setWinners}
+									gameStarted={gameStarted}
+									setGameStarted={setGameStarted}
+									roundStartTime={roundStartTime}
+									setRoundStartTime={setRoundStartTime}
+									roundOver={roundOver}
+									setRoundOver={setRoundOver}
+									startRound={startRound}
 								/>
 							) : (
 								<Room
@@ -98,6 +121,13 @@ const App = () => {
 									setPrompts={setPrompts}
 									setGameOver={setGameOver}
 									setWinners={setWinners}
+									gameStarted={gameStarted}
+									setGameStarted={setGameStarted}
+									roundStartTime={roundStartTime}
+									setRoundStartTime={setRoundStartTime}
+									roundOver={roundOver}
+									setRoundOver={setRoundOver}
+									startRound={startRound}
 								/>
 							)}
 						</>

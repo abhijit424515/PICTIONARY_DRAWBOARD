@@ -157,12 +157,15 @@ function Tools(props) {
 			) : (
 				<>
 					<div className="flex flex-row justify-evenly w-[50vw]">
-						<button
+						{/* <button
 							className="btn btn-outline-warning text-[1.5rem] w-[8rem]"
 							onClick={Toggle}
 						>
 							MyTurn
-						</button>
+						</button> */}
+						<div className="w-[8rem] text-[1.5rem] text-center">
+							<RoundTimer />
+						</div>
 					</div>
 				</>
 			)}

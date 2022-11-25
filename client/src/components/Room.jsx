@@ -9,6 +9,7 @@ import ChatBubble from "./ChatBubble";
 import { Swatches, Tools } from "./SwatchesAndTools";
 import Canvas from "./Canvas";
 import QuestionChoose from "./QuestionChoose";
+import StartGame from "./StartGame";
 
 function timeout(delay) {
 	return new Promise((res) => setTimeout(res, delay));
@@ -33,12 +34,12 @@ export default function Room(props) {
 	const [words, setWords] = useState([]);
 	const [indices, setIndices] = useState([]);
 
-	const [roundStartTime, setRoundStartTime] = useState(new Date());
-	const [roundOver, setRoundOver] = useState(false);
+	// const [roundStartTime, setRoundStartTime] = useState(new Date());
+	// const [roundOver, setRoundOver] = useState(false);
 
-	const startRound = () => {
-		setRoundStartTime(new Date());
-	};
+	// const startRound = () => {
+	// 	setRoundStartTime(new Date());
+	// };
 
 	useEffect(() => {
 		if (chats.length > 17) {
@@ -59,6 +60,7 @@ export default function Room(props) {
 
 		props.socket.on("change-turn", () => {
 			props.setTurn(false);
+			props.setGameStarted(true);
 		});
 
 		/*props.socket.on("check-answer", (data) => {
@@ -89,7 +91,16 @@ export default function Room(props) {
 				Toggle();
 				setWords(data.words);
 				setIndices(data.indices);
+				// props.setGameStarted(true);
+
+				// console.log("########## is toggling? " + data.isFirst);
+
+				// if (data.isFirst == false) {
+				// 	// props.setGameStarted(true);
+				// }
 			}
+
+			setCanChat(true);
 		});
 
 		props.socket.on("correct", (data) => {
@@ -103,6 +114,27 @@ export default function Room(props) {
 				guess(data);
 			}
 		});
+
+		props.socket.on("roundOver", (data) => {
+			console.log("request prompt triggered");
+
+			props.socket.emit("request-prompt", {
+				room: props.roomID,
+				userID: props.user.userID,
+			});
+			setQuestionChosen(false);
+			setRounds(data.round);
+			setCanChat(true);
+
+			if (data.round == 3) {
+				props.setGameOver(true);
+				props.setWinners(data.winners);
+			}
+		});
+
+		props.socket.on("set-timers", () => {
+			props.startRound();
+		});
 	}, []);
 
 	function guess(data) {
@@ -110,7 +142,11 @@ export default function Room(props) {
 	}
 
 	useEffect(() => {
-		props.socket.emit("request-prompt", props.roomID);
+		console.log("################ constructor triggered");
+		props.socket.emit("request-prompt", {
+			room: props.roomID,
+			userID: props.user.userID,
+		});
 	}, []);
 
 	useEffect(() => {
@@ -225,30 +261,41 @@ export default function Room(props) {
 						setTurn={props.setTurn}
 						socket={props.socket}
 						room={props.user.roomID}
-						roundStartTime={roundStartTime}
-						setRoundStartTime={setRoundStartTime}
-						roundOver={roundOver}
-						setRoundOver={setRoundOver}
+						roundStartTime={props.roundStartTime}
+						setRoundStartTime={props.setRoundStartTime}
+						roundOver={props.roundOver}
+						setRoundOver={props.setRoundOver}
 					/>
 					{props.turn ? (
 						<>
-							{questionChosen ? (
-								<Canvas
-									canvasRef={canvasRef}
-									ctx={ctx}
-									color={color}
-									setElements={setElements}
-									elements={elements}
-									tool={"pencil"}
-									socket={props.socket}
-									room={props.user.roomID}
-								/>
+							{props.gameStarted ? (
+								<>
+									{questionChosen ? (
+										<Canvas
+											canvasRef={canvasRef}
+											ctx={ctx}
+											color={color}
+											setElements={setElements}
+											elements={elements}
+											tool={"pencil"}
+											socket={props.socket}
+											room={props.user.roomID}
+										/>
+									) : (
+										<QuestionChoose
+											words={words}
+											indices={indices}
+											setQuestionChosen={setQuestionChosen}
+											setPrompts={props.setPrompts}
+											setIndices={setIndices}
+											socket={props.socket}
+											roomID={props.roomID}
+										/>
+									)}
+								</>
 							) : (
-								<QuestionChoose
-									words={words}
-									setQuestionChosen={setQuestionChosen}
-									setPrompts={props.setPrompts}
-									setIndices={setIndices}
+								<StartGame
+									setGameStarted={props.setGameStarted}
 									socket={props.socket}
 									roomID={props.roomID}
 								/>
