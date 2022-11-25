@@ -80,6 +80,9 @@ export default function Room(props) {
 				setWords(data.words);
 				setIndices(data.indices);
 			}
+
+			setCanChat(true);
+
 		});
 
 		props.socket.on("correct", (data) => {
@@ -93,6 +96,23 @@ export default function Room(props) {
 				guess(data);
 			}
 		});
+
+		props.socket.on("roundOver", (data) => {
+
+			console.log("request prompt triggered");
+
+			props.socket.emit("request-prompt", props.roomID);
+			setQuestionChosen(false);
+			setRounds(data.round);
+			setCanChat(true);
+
+			if(data.round == 3){
+				props.setGameOver(true);
+				props.setWinners(data.winners);
+			}
+
+		});
+
 	}, []);
 
 	function guess(data) {
@@ -100,6 +120,7 @@ export default function Room(props) {
 	}
 
 	useEffect (() => {
+		console.log("################ constructor triggered");
 		props.socket.emit("request-prompt", props.roomID);
 	}, []);
 
@@ -231,6 +252,7 @@ export default function Room(props) {
 							) : (
 								<QuestionChoose
 									words={words}
+									indices={indices}
 									setQuestionChosen={setQuestionChosen}
 									setPrompts={props.setPrompts}
 									setIndices={setIndices}

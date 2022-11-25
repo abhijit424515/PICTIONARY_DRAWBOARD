@@ -77,6 +77,8 @@ const App = () => {
 									rounds={rounds}
 									prompts={prompts}
 									setPrompts={setPrompts}
+									setGameOver={setGameOver}
+									setWinners={setWinners}
 								/>
 							) : (
 								<Room
@@ -94,6 +96,8 @@ const App = () => {
 									imgRef={imgRef}
 									prompts={prompts}
 									setPrompts={setPrompts}
+									setGameOver={setGameOver}
+									setWinners={setWinners}
 								/>
 							)}
 						</>

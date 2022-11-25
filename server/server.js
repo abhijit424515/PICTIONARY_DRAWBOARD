@@ -91,8 +91,17 @@ io.on("connection", (socket) => {
 		const answer = db.getAnswer(data.roomID);
 		console.log("answer is " + answer);
 		console.log("received answer is " + data.msg + ", given by " + data.from);
-		if (data.msg.toString().trim() === answer.toString().trim()) {
-			if (db.fetchUser(data.fromID) && db.fetchUser(data.fromID)["answered"] == false) {
+		if (data.msg.toString().trim().toLowerCase() === answer.toString().trim().toLowerCase()) {
+
+			console.log("match correct");
+
+			console.log(db.fetchUser(data.fromID));
+
+
+			if (db.fetchUser(data.fromID) && db.fetchUser(data.fromID)["answered"] === false) {
+
+				console.log("in if statement");
+
 				io.in(data.roomID).emit("correct", {
 					from: data.from,
 					fromID: data.fromID,
@@ -100,7 +109,17 @@ io.on("connection", (socket) => {
 				db.updateAnswered(data.fromID);
 
 				if(db.checkAllAnswered(data.roomID) === true){
+					
+					db.updatePoints(data.fromID, 100);
 
+					if(db.isRoundOver(data.roomID)){
+						console.log("###### round over");
+						db.resetAfterTurn(data.roomID);
+						const rnd = db.getRound(data.roomID);
+						const winners = db.getWinners(data.roomID);
+						io.in(data.roomID).emit("roundOver", {'round':rnd, 'winners': winners});
+					}
+					else{
 					console.log("turn over");
 
 					const newDrawer = db.getDrawer(data.roomID);
@@ -108,12 +127,16 @@ io.on("connection", (socket) => {
 					console.log("over here");
 					const newPrompts = db.getNewPrompts(data.roomID);
 					console.log("after getting prompts");
-					console.log("newPrompts are " + newPrompts);
-					db.resetAfterTurn(data.roomId);
+					console.log("newPrompts are ");
+					console.log(newPrompts);
+					console.log("data.roomID " + data.roomID);
+					db.resetAfterTurn(data.roomID);
 					db.updateAnswered(newDrawer);
 
 					console.log("about to emit");
-					socket.to(data.roomID).emit("prompt", {'drawerID': newDrawer, 'words': newPrompts.words, 'indices': newPrompts.indices });
+				
+					io.in(data.roomID).emit("prompt", {'drawerID': newDrawer, 'words': newPrompts.words, 'indices': newPrompts.indices });
+					}
 				}
 			}
 		} 
@@ -150,6 +173,7 @@ io.on("connection", (socket) => {
 
 	socket.on("setAns", (data) =>{
 		db.setAns(data.roomID, data.ans);
+		db.takenPrompt(data.index, data.roomID);
 	});
 
 	/*socket.on("answer", (data) => {
