@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
 
-const ROUND_TIME = 60;
+const ROUND_TIME = 20;
 
 const colors = [
 	"#800000",
@@ -29,6 +29,13 @@ const colors = [
 
 function Tools(props) {
 	const [currTime, setCurrTime] = useState(new Date());
+	const [hasOver, setHasOver] = useState(true);
+
+	useEffect(() => {
+		props.socket.on("reset-mfs", () => {
+			setHasOver(true);
+		});
+	}, []);
 
 	useEffect(() => {
 		var timer = setInterval(() => setCurrTime(new Date()), 50);
@@ -38,8 +45,12 @@ function Tools(props) {
 	});
 
 	useEffect(() => {
-		if (ROUND_TIME <= Math.trunc((currTime - props.roundStartTime) / 1000)) {
+		if (
+			ROUND_TIME <= Math.trunc((currTime - props.roundStartTime) / 1000) &&
+			hasOver == true
+		) {
 			props.setRoundOver(true);
+			setHasOver(false);
 		}
 	}, [currTime]);
 

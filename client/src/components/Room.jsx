@@ -83,6 +83,8 @@ export default function Room(props) {
 		});
 
 		props.socket.on("prompt", (data) => {
+			props.setRoundOver(false);
+
 			console.log("got prompt in socket");
 			console.log("present userID " + props.user.userID);
 			console.log(data);
@@ -126,7 +128,7 @@ export default function Room(props) {
 			setRounds(data.round);
 			setCanChat(true);
 
-			if (data.round == 3) {
+			if (data.round == 6) {
 				props.setGameOver(true);
 				props.setWinners(data.winners);
 			}
