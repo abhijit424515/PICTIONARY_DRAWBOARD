@@ -9,7 +9,6 @@ import ChatBubble from "./ChatBubble";
 import { Swatches, Tools } from "./SwatchesAndTools";
 import Canvas from "./Canvas";
 import QuestionChoose from "./QuestionChoose";
-import * as db from "../../../server/utils/user.js";
 
 function timeout(delay) {
 	return new Promise((res) => setTimeout(res, delay));
@@ -34,6 +33,18 @@ export default function Room(props) {
 	const [words, setWords] = useState([]);
 	const [indices, setIndices] = useState([]);
 
+	const [roundStartTime, setRoundStartTime] = useState(new Date());
+	const [roundOver, setRoundOver] = useState(false);
+
+	const startRound = () => {
+		setRoundStartTime(new Date());
+	};
+
+	useEffect(() => {
+		if (chats.length > 17) {
+			chats.shift();
+		}
+	}, [chats]);
 
 	const Toggle = () => {
 		props.setTurn(true);
@@ -42,7 +53,6 @@ export default function Room(props) {
 	};
 
 	useEffect(() => {
-
 		props.socket.on("message", (data) => {
 			toast.info(data.message);
 		});
@@ -74,7 +84,7 @@ export default function Room(props) {
 			console.log("got prompt in socket");
 			console.log("present userID " + props.user.userID);
 			console.log(data);
-			if (data.drawerID === props.user.userID){
+			if (data.drawerID === props.user.userID) {
 				console.log("Now the drawer");
 				Toggle();
 				setWords(data.words);
@@ -99,7 +109,7 @@ export default function Room(props) {
 		toast.success(data.from + " got the right answer!");
 	}
 
-	useEffect (() => {
+	useEffect(() => {
 		props.socket.emit("request-prompt", props.roomID);
 	}, []);
 
@@ -116,8 +126,8 @@ export default function Room(props) {
 		console.log(props.users);
 	}, [props.users]);
 
-	useEffect (() => {
-		props.socket.emit("reclaim-prompt", indices)
+	useEffect(() => {
+		props.socket.emit("reclaim-prompt", indices);
 	}, [props.prompts]);
 
 	function sendMessage(msg) {
@@ -190,6 +200,7 @@ export default function Room(props) {
 					{props.users.map((item, index) => {
 						return (
 							<PlayerCards
+								key={index}
 								name={item.name}
 								rank={index + 1}
 								textColor="text-black"
@@ -214,6 +225,10 @@ export default function Room(props) {
 						setTurn={props.setTurn}
 						socket={props.socket}
 						room={props.user.roomID}
+						roundStartTime={roundStartTime}
+						setRoundStartTime={setRoundStartTime}
+						roundOver={roundOver}
+						setRoundOver={setRoundOver}
 					/>
 					{props.turn ? (
 						<>
@@ -260,10 +275,10 @@ export default function Room(props) {
 						{chats.map((item, index) => {
 							return (
 								<ChatBubble
+									key={index}
 									roomID={props.roomID}
 									user={props.user}
 									socket={props.socket}
-									key={index}
 									name={item[0]}
 									msg={item[1]}
 									bgColor="bg-yellow-200"

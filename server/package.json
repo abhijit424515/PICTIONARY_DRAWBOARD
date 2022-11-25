@@ -8,7 +8,7 @@
 		"start": "nodemon server.js",
 		"dev": "nodemon server.js"
 	},
-	"author": "Raman Sharma",
+	"author": "Fast Byte",
 	"license": "ISC",
 	"dependencies": {
 		"cors": "^2.8.5",

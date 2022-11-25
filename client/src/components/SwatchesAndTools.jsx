@@ -1,6 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
+
+const ROUND_TIME = 60;
 
 const colors = [
 	"#800000",
@@ -26,6 +28,40 @@ const colors = [
 ];
 
 function Tools(props) {
+	const [currTime, setCurrTime] = useState(new Date());
+
+	useEffect(() => {
+		var timer = setInterval(() => setCurrTime(new Date()), 50);
+		return function cleanup() {
+			clearInterval(timer);
+		};
+	});
+
+	useEffect(() => {
+		if (ROUND_TIME <= Math.trunc((currTime - props.roundStartTime) / 1000)) {
+			props.setRoundOver(true);
+		}
+	}, [currTime]);
+
+	const RoundTimer = () => {
+		return (
+			<>
+				{ROUND_TIME > Math.trunc((currTime - props.roundStartTime) / 1000) ? (
+					<>
+						{ROUND_TIME - Math.trunc((currTime - props.roundStartTime) / 1000)}
+					</>
+				) : (
+					<>0</>
+				)}
+			</>
+		);
+	};
+
+	useEffect(() => {
+		// USE THIS as trigger when round is over
+		console.log("round over");
+	}, [props.roundOver]);
+
 	useEffect(() => {
 		props.socket.on("change-turn", () => {
 			props.setTurn(false);
@@ -108,12 +144,15 @@ function Tools(props) {
 					>
 						Clear
 					</button>
-					<button
+					{/* <button
 						className="btn btn-outline-warning text-[1.5rem] w-[8rem]"
 						onClick={Toggle}
 					>
 						MyTurn
-					</button>
+					</button> */}
+					<div className="w-[8rem] text-[1.5rem] text-center">
+						<RoundTimer />
+					</div>
 				</div>
 			) : (
 				<>

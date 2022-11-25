@@ -8,36 +8,33 @@
 
 ---
 
-
-
----
-
 We are currently using the following languages/libraries/frameworks/softwares :
 
-- HTML, CSS, Javascript
-- [Tailwind](https://tailwindcss.com/) and [Bootstrap](https://getbootstrap.com/) CSS frameworks
-- ReactJS
+- HTML, CSS, [Tailwind](https://tailwindcss.com/) and [Bootstrap](https://getbootstrap.com/) CSS frameworks
+- [ReactJS](https://reactjs.org/) framework
 - [Vite](https://vitejs.dev/) Javascript build tool
-- Major NPM modules used:
-  - [socket.io](https://socket.io/) library to facilitate bi-directional and simultaneous data transfer between server and clients.
-  - [axios](https://axios-http.com/) to make HTTP requests to the server. 
-  - [uuidv4](https://www.npmjs.com/package/uuidv4) to generate unique IDs for rooms as well as players.
+- [npm](https://www.npmjs.com/) modules used:
+  - [@fortawesome](https://fontawesome.com/) icon library.
+  - [react-toastify](https://www.npmjs.com/package/react-toastify) for app notifications.
   - [roughjs](https://roughjs.com/) for the drawing canvas.
+  - [socket.io](https://socket.io/) library to facilitate bi-directional and simultaneous data transfer between server and clients.
+  - [uuidv4](https://www.npmjs.com/package/uuidv4) to generate unique IDs for rooms as well as players.
+  - [axios](https://axios-http.com/) to make HTTP requests to the server. 
+  - [express](https://expressjs.com/) web framework to make APIs.
 
 ## Features and gameplay
 
-- A page for players to create private lobbies, where they can share invite CODES to other players.
-<!-- - After players join into a lobby, they have to choose one of the given 2 sides.
-- Each player is given a catapult of their own, whose angle and orientation can be controlled by that player. Also, each team is given a base behind them to defend.
-- The players have to use their keyboard to control the aim of their catapult and destroy either the enemy base or the enemy catapults by throwing projectiles using the catapult.
-- Each hit awards certain points to each player, and each receiving hit by a catapult reduces the health of the catapult.
-- The game ends when either the enemy castle, or all the enemy catapults are destroyed.
-- After the game ends, a scoreboard showing the points of all players will be displayed in descending order. -->
+- A page for players to create private lobbies, where they can share invite CODES to other players. After players join into a lobby, the game starts. 
+- Each player is given a word on their turn, which is only visible to them. They have to draw on a given canvas to describe the word without actually mentioning it directly, and the other players will receive a live rendering of the drawing made by that player as an image, using which they have to guess the word. The order of guessing yields the players different points. 
+- For each round of the game, every player is given a turn to draw. On completion of all 5 rounds, the game ends, and a leaderboard screen pops up showing the top 3 players of the game. 
 
-### Additional features (if time permits)
+## Implementation
 
-- Quick chat **(emojis)**
-- Accounts for individual users to track progress
-
-## Resources and references
-
+- We created a room for each game instance, and generated a corresponding unique room ID.
+- There is a button on the top bar to copy the current room's ID whenever needed. Also, the ongoing round is displayed on the top bar.
+- On the left sidebar, the player list is rendered. On the right sidebar, a room chat is rendered which is synced across all clients.   
+- On the center of the screen, we used roughjs to render an HTML canvas, on which we can draw using our mouse. Using mouse click triggers in the returned div tag, we can capture mouse path and draw accordingly. 
+- We used a useRef to generate an image, which is sent via socket to all other clients to display. 
+- We used props to send a useState for changing the pencil color for drawing.
+- We created the Undo, Redo and Clear buttons and linked them up with appropriate onClick functions.
+- For the final leaderboard, we used props and useState to update the list of top 3 players according to score, and display the final winners page.
