@@ -10,6 +10,7 @@ import { Swatches, Tools } from "./SwatchesAndTools";
 import Canvas from "./Canvas";
 import QuestionChoose from "./QuestionChoose";
 import StartGame from "./StartGame";
+import soundMap from "./SoundMap";
 
 function timeout(delay) {
 	return new Promise((res) => setTimeout(res, delay));
@@ -115,6 +116,8 @@ export default function Room(props) {
 				console.log(data);
 				guess(data);
 			}
+			const sound = new Audio(soundMap["correctAnswer"]);
+			sound.play();
 		});
 
 		props.socket.on("roundOver", (data) => {
@@ -208,6 +211,8 @@ export default function Room(props) {
 						text={props.roomID}
 						className="cursor-pointer py-[0.5rem] px-3 h5 h-full"
 						onCopy={async () => {
+							const sound = new Audio(soundMap["buttonClick"]);
+							sound.play();
 							setCopied(true);
 							await timeout(3000);
 							setCopied(false);

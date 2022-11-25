@@ -1,4 +1,4 @@
-# PICTIONARY_DRAWBOARD
+# PICTIONARY by Fast Byte
 
 | Team Member | Roll Number |
 | --- | --- |

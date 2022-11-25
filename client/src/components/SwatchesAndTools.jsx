@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUndo, faRedo } from "@fortawesome/free-solid-svg-icons";
+import soundMap from "./SoundMap";
 
-const ROUND_TIME = 20;
+const ROUND_TIME = 60;
 
 const colors = [
 	"#800000",
@@ -86,6 +87,9 @@ function Tools(props) {
 	};
 
 	const clearCanvas = () => {
+		const sound = new Audio(soundMap["buttonClick"]);
+		sound.play();
+
 		const canvas = props.canvasRef.current;
 		const context = canvas.getContext("2d");
 		context.fillStyle = "white";
@@ -95,6 +99,9 @@ function Tools(props) {
 	};
 
 	const undo = () => {
+		const sound = new Audio(soundMap["buttonClick"]);
+		sound.play();
+
 		if (props.elements.length > 0) {
 			props.setHistory((prevHistory) => [
 				...prevHistory,
@@ -118,6 +125,9 @@ function Tools(props) {
 	};
 
 	const redo = () => {
+		const sound = new Audio(soundMap["buttonClick"]);
+		sound.play();
+
 		if (props.history.length > 0) {
 			props.setElements((prevElements) => [
 				...prevElements,
@@ -199,7 +209,11 @@ function Swatches(props) {
 									height: "2.5vw",
 									width: "2.5vw",
 								}}
-								onClick={() => props.setColor(x)}
+								onClick={() => {
+									const sound = new Audio(soundMap["buttonClick"]);
+									sound.play();
+									props.setColor(x);
+								}}
 							></div>
 						);
 					})}

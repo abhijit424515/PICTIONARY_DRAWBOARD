@@ -1,5 +1,6 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
+import soundMap from "./SoundMap";
 
 const ChatBubble = (props) => {
 	/*const [hasSent, setHasSent] = useState(false);
@@ -11,6 +12,11 @@ const ChatBubble = (props) => {
 		props.socket.emit("answer", {'roomID':props.roomID, 'userID':props.user.userID,  'msg':props.msg});
 		setHasSent(true);
 	}*/
+
+	useEffect(() => {
+		const sound = new Audio(soundMap["messageSent"]);
+		sound.play();
+	}, []);
 
 	return (
 		<div
