@@ -101,6 +101,11 @@ io.on("connection", (socket) => {
 			answer.toString().trim().toLowerCase()
 		) {
 			console.log("match correct");
+			db.updatePoints(data.fromID, data.roomID);
+			console.log("updated points are ");
+			console.log(db.getUsers(data.roomID));
+			//io.to(data.roomID).emit("change-points", db.getPointArray(data.roomID));
+			io.to(data.roomID).emit("change-points", db.getUsers(data.roomID));
 
 			console.log(db.fetchUser(data.fromID));
 
@@ -115,9 +120,9 @@ io.on("connection", (socket) => {
 					fromID: data.fromID,
 				});
 				db.updateAnswered(data.fromID);
+				// db.increaseAnswered(data.roomID);
 
 				if (db.checkAllAnswered(data.roomID) === true) {
-					db.updatePoints(data.fromID, 100);
 
 					if (db.isRoundOver(data.roomID)) {
 						console.log("###### round over");
