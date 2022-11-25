@@ -201,8 +201,6 @@ const userJoin = (
 	const roomIndex = rooms.findIndex(
 		(thisroom) => thisroom.id.toString() === room.toString()
 	);
-	console.log("room inserting " + room.toString());
-	console.log(roomIndex);
 	if (roomIndex === -1) {
 		const room_entry = {
 			id: room,
@@ -234,7 +232,6 @@ const userLeave = (id) => {
 			rooms[roomIndex]["count"] -= 1;
 		}
 		let x = users.splice(index, 1)[0];
-		console.log(x);
 		return x;
 	}
 };
@@ -255,23 +252,6 @@ const getUsers = (room) => {
 export const getDrawer = (room) => {
 	const rIndex = rooms.findIndex((r) => r.id === room);
 	const drawIndex = rooms[rIndex].drawer;
-	console.log("drawindex " + drawIndex);
-	// if (drawIndex!== -1) {
-	// 	console.log(getUsers(room));
-	//     const userIndex = getUsers(room).findIndex((u) => u.number === drawIndex);
-	// 	if (userIndex!== -1) {
-	// 		return users[userIndex].userID;
-	// 	}
-	// }
-
-	// const myusers = getUsers(room);
-
-	// if(drawIndex >= myusers.length){
-	// 	return myusers[0].userID;
-	// }
-	// else{
-	// 	return myusers[drawIndex].userID;
-	// }
 
 	rooms[rIndex].drawer += 1;
 
@@ -310,7 +290,6 @@ const getRooms = () => {
 };
 
 const getAnswer = (room) => {
-	console.log(room);
 	return rooms[rooms.findIndex((thisroom) => thisroom["id"] === room)]["ans"];
 };
 
@@ -335,7 +314,6 @@ export const updatePoints = (userID, roomID) => {
 		}
 	});
 
-	console.log(count + " users have already answered out of a total " + rooms[roomIndex].count);
 	const points = 100*(1 - (count - 1)/(rooms[roomIndex].count));
 	if (index !== -1) {
 		users[index]["points"] += points;
@@ -369,21 +347,15 @@ export const checkIfRound = (room) => {
 };
 
 export const getNewPrompts = (room) => {
-	console.log("in getNewPrompts");
 	const index = rooms.findIndex((thisroom) => thisroom.id === room);
-	console.log("index" + index);
-	console.log(rooms);
 	if (index == -1) {
-		console.log("returning null");
 		return;
 	}
 	let prompts = { words: [], indices: [] };
 	let count = 0;
 	let boolPrompt = [...rooms[index]["prompts"]];
-	console.log(boolPrompt);
 	boolPrompt.forEach((b, index) => {
 		if (b) {
-			console.log("already done " + globalPrompts[index]);
 		}
 	});
 	if (index !== -1) {
@@ -396,7 +368,6 @@ export const getNewPrompts = (room) => {
 				count++;
 			}
 		}
-		console.log("returning prompts");
 		return prompts;
 	}
 };
@@ -448,9 +419,7 @@ export const checkAllAnswered = (roomID) => {
 	let flag = true;
 
 	myusers.forEach((thisuser) => {
-		console.log("is true/false --- " + thisuser.answered);
 		if (thisuser.answered === false) {
-			console.log("returning false");
 			flag = false;
 		}
 	});
@@ -459,11 +428,8 @@ export const checkAllAnswered = (roomID) => {
 };
 
 export const resetAfterTurn = (room) => {
-	console.log("in resetAFterTurn  " + room);
 	users.forEach((user) => {
-		console.log(user);
 		if (user.room.toString() === room.toString()) {
-			console.log("resetting user answered " + user.userID);
 			user["answered"] = false;
 		}
 	});
@@ -499,7 +465,6 @@ export const getWinners = (room) => {
 	const myusers = [...getUsers(room)];
 	myusers.sort((u1, u2) => u2.points - u1.points);
 	const winners = myusers.slice(0, 3).map((u) => [u.name, u.points]);
-	console.log(winners);
 	return winners;
 };
 

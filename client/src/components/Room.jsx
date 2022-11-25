@@ -52,7 +52,6 @@ export default function Room(props) {
 
 	const Toggle = () => {
 		props.setTurn(true);
-		console.log("change of turn for room " + props.roomID);
 		props.socket.emit("turn", props.roomID);
 	};
 
@@ -66,31 +65,13 @@ export default function Room(props) {
 			props.setGameStarted(true);
 		});
 
-		/*props.socket.on("check-answer", (data) => {
-			if(data.userID === props.user.userID && data.boolean === true){
-				console.log("right answer");
-			}
-		})*/
 
 		props.socket.on("users", (data) => {
-			console.log("*********RECEIVED USERS*************");
 			// setListOfUsers(db.getUsers(props.user.room));
 			props.setUsers(data);
 			props.setUserNo(data.length);
-			console.log(props.users);
-			console.log(data);
-			console.log("user is ");
-			console.log(props.user);
-			console.log(
-				"================================================================"
-			);
 		});
 
-		/*props.socket.on("change-points", (points)=>{
-			console.log("*******************Received Points*********************");
-			console.log(points);
-			setBogus(points);
-		});*/
 		props.socket.on("change-points", (data) => {
 			props.setUsers(data);
 		});
@@ -98,34 +79,20 @@ export default function Room(props) {
 		props.socket.on("prompt", (data) => {
 			props.setRoundOver(false);
 
-			console.log("got prompt in socket");
-			console.log("present userID " + props.user.userID);
-			console.log(data);
 			if (data.drawerID === props.user.userID) {
-				console.log("Now the drawer");
 				Toggle();
 				setWords(data.words);
 				setIndices(data.indices);
-				// props.setGameStarted(true);
-
-				// console.log("########## is toggling? " + data.isFirst);
-
-				// if (data.isFirst == false) {
-				// 	// props.setGameStarted(true);
-				// }
 			}
 
 			setCanChat(true);
 		});
 
 		props.socket.on("correct", (data) => {
-			console.log("correct answer by");
 			if (props.user.userID === data.fromID) {
 				setCanChat(false);
 				toast.success("You got the right answer!");
 			} else {
-				console.log("correct answer received from here");
-				console.log(data);
 				guess(data);
 			}
 			const sound = new Audio(soundMap["correctAnswer"]);
@@ -133,7 +100,6 @@ export default function Room(props) {
 		});
 
 		props.socket.on("roundOver", (data) => {
-			console.log("request prompt triggered");
 
 			props.socket.emit("request-prompt", {
 				room: props.roomID,
@@ -159,7 +125,6 @@ export default function Room(props) {
 	}
 
 	useEffect(() => {
-		console.log("################ constructor triggered");
 		props.socket.emit("request-prompt", {
 			room: props.roomID,
 			userID: props.user.userID,
@@ -175,8 +140,6 @@ export default function Room(props) {
 	}, [props.turn]);
 
 	useEffect(() => {
-		console.log("users has been changed to ");
-		console.log(props.users);
 	}, [props.users]);
 
 	useEffect(() => {
@@ -196,18 +159,8 @@ export default function Room(props) {
 		setMsg("");
 	}
 
-	// props.socket.on("correct", (name) => {
-	// 	if (props.user.name === name) {
-	// 		toast.success("You got the right answer!");
-	// 	} else {
-	// 		toast.success(name + " got the right answer!");
-	// 	}
-	// });
-
 	// useEffect(() => {
 	props.socket.on("chat", (msg) => {
-		console.log(msg.from);
-		console.log(msg.msg);
 		setChats([...chats, [msg.from, msg.msg]]);
 	});
 	// }, []);

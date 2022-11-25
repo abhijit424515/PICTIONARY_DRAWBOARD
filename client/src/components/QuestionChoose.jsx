@@ -10,7 +10,6 @@ export default function QuestionChoose({
 	roomID,
 }) {
 	const question = (x, choice) => {
-		console.log(x);
 		setQuestionChosen(true);
 		setPrompts(x);
 		setIndices([choice]);

@@ -15,9 +15,6 @@ export default function Canvas({
 }) {
 	const [isDrawing, setIsDrawing] = useState(false);
 
-	// console.log("window.innerHeight: " + window.innerHeight);
-	// console.log("window.innerWidth: " + window.innerWidth);
-
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		canvas.height = window.innerHeight / 1.5;
@@ -25,11 +22,6 @@ export default function Canvas({
 		canvas.style.height = `${window.innerHeight / 1.5}px`;
 		canvas.style.width = `${window.innerWidth / 2}px`;
 		const context = canvas.getContext("2d");
-
-		// console.log("canvas.height: " + canvas.height);
-		// console.log("canvas.width: " + canvas.width);
-		// console.log("canvas.style.height: " + canvas.style.height);
-		// console.log("canvas.style.width: " + canvas.style.width);
 
 		context.strokeWidth = 5;
 		context.scale(1, 1);

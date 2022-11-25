@@ -3,7 +3,6 @@ import React from "react";
 export default function StartGame({ socket, setGameStarted, roomID }) {
 	const start = () => {
 		setGameStarted(true);
-		console.log("emitting request from " + roomID);
 		socket.emit("request-prompt", roomID);
 		socket.emit("ready", roomID);
 	};

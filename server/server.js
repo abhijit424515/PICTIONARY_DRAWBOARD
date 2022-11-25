@@ -36,9 +36,7 @@ io.on("connection", (socket) => {
 		//id_count++;
 		const { roomID, userID, name, host, presenter, number, points, answered } =
 			data; // received data
-		// console.log(data);
 		userRoom = roomID;
-		console.log(roomID);
 		const count_in_room = db.getCount(roomID);
 		const user = db.userJoin(
 			userID,
@@ -63,7 +61,6 @@ io.on("connection", (socket) => {
 		io.to(user.room).emit("users", roomUsers); // Broadcast players list to ALL users
 		io.to(user.room).emit("canvasImage", imageUrl); // Broadcast drawboard to ALL users
 		if (count_in_room > 1) {
-			console.log("emitted game start, already people present");
 			socket.emit("game-started");
 		}
 	});
@@ -94,26 +91,19 @@ io.on("connection", (socket) => {
 	socket.on("chat", (data) => {
 		// Check for correct answer
 		const answer = db.getAnswer(data.roomID);
-		console.log("answer is " + answer);
-		console.log("received answer is " + data.msg + ", given by " + data.from);
 		if (
 			data.msg.toString().trim().toLowerCase() ===
 			answer.toString().trim().toLowerCase()
 		) {
-			console.log("match correct");
 			db.updatePoints(data.fromID, data.roomID);
-			console.log("updated points are ");
-			console.log(db.getUsers(data.roomID));
 			//io.to(data.roomID).emit("change-points", db.getPointArray(data.roomID));
 			io.to(data.roomID).emit("change-points", db.getUsers(data.roomID));
 
-			console.log(db.fetchUser(data.fromID));
 
 			if (
 				db.fetchUser(data.fromID) &&
 				db.fetchUser(data.fromID)["answered"] === false
 			) {
-				console.log("in if statement");
 
 				io.in(data.roomID).emit("correct", {
 					from: data.from,
@@ -125,7 +115,6 @@ io.on("connection", (socket) => {
 				if (db.checkAllAnswered(data.roomID) === true) {
 
 					if (db.isRoundOver(data.roomID)) {
-						console.log("###### round over");
 						db.resetAfterTurn(data.roomID);
 						const rnd = db.getRound(data.roomID);
 						const winners = db.getWinners(data.roomID);
@@ -134,20 +123,12 @@ io.on("connection", (socket) => {
 							winners: winners,
 						});
 					} else {
-						console.log("turn over");
 
 						const newDrawer = db.getDrawer(data.roomID);
-						console.log("newDrawer is " + newDrawer);
-						console.log("over here");
 						const newPrompts = db.getNewPrompts(data.roomID);
-						console.log("after getting prompts");
-						console.log("newPrompts are ");
-						console.log(newPrompts);
-						console.log("data.roomID " + data.roomID);
 						db.resetAfterTurn(data.roomID);
 						db.updateAnswered(newDrawer);
 
-						console.log("about to emit");
 
 						io.in(data.roomID).emit("prompt", {
 							drawerID: newDrawer,
@@ -167,12 +148,6 @@ io.on("connection", (socket) => {
 
 	// Receive change of turn and send changes to clients
 	socket.on("turn", (room) => {
-		// console.log("received turn change message from " + room);
-		/*const { turn, roomId } = data; // received data
-        io.in(roomId).emit("turn", {
-            turn
-        });*/
-
 		// Send out change of turn
 		socket.broadcast.to(room).emit("change-turn");
 	});
@@ -183,19 +158,6 @@ io.on("connection", (socket) => {
 			if (db.checkIfRound(room)) {
 				const drawer = db.retFirstUserinRoom(room);
 				const prompts = db.getNewPrompts(room);
-				console.log("new drawer is " + drawer);
-				console.log(prompts);
-				console.log("prompts requested at " + room);
-				// const rnd = db.getRound(room);
-				// const flag = db.elementaryCheck(userID, room);
-
-				// let b = true;
-
-				// if (rnd == 1 && flag == true) {
-				// 	b = true;
-				// } else {
-				// 	b = false;
-				// }
 
 				socket.in(room).emit("prompt", {
 					drawerID: drawer,
@@ -223,10 +185,8 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("time-over", (room) => {
-		console.log("************************************************************");
 
 		if (db.isRoundOver(room)) {
-			console.log("###### round over");
 			db.resetAfterTurn(room);
 			const rnd = db.getRound(room);
 			const winners = db.getWinners(room);
@@ -235,20 +195,11 @@ io.on("connection", (socket) => {
 				winners: winners,
 			});
 		} else {
-			console.log("turn over");
 
 			const newDrawer = db.getDrawer(room);
-			console.log("newDrawer is " + newDrawer);
-			console.log("over here");
 			const newPrompts = db.getNewPrompts(room);
-			console.log("after getting prompts");
-			console.log("newPrompts are ");
-			console.log(newPrompts);
-			console.log("data.roomID " + room);
 			db.resetAfterTurn(room);
 			db.updateAnswered(newDrawer);
-
-			console.log("about to emit");
 
 			io.in(room).emit("prompt", {
 				drawerID: newDrawer,
@@ -259,29 +210,6 @@ io.on("connection", (socket) => {
 		}
 	});
 
-	/*socket.on("answer", (data) => {
-		console.log("in answer");
-
-		const rooms = db.getRooms();
-
-		rooms.forEach((n) => {
-			if (n.id === data.roomID) {
-				if (n.ans === data.msg) {
-					socket.broadcast
-						.to(data.roomID)
-						.emit("check-answer", { userID: data.userID, boolean: true });
-
-					n.answeredCount = n.answeredCount + 1;
-
-					if (n.answeredCount == n.count - 1) {
-						socket.broadcast.to(data.roomID);
-					}
-				} else {
-					socket.emit("check-answer", { userID: data.userID, boolean: false });
-				}
-			}
-		});
-	});*/
 });
 
 // SERVE on port and start listening for API calls

@@ -71,7 +71,6 @@ function Tools(props) {
 
 	useEffect(() => {
 		// USE THIS as trigger when round is over
-		console.log("round over");
 	}, [props.roundOver]);
 
 	useEffect(() => {
@@ -82,7 +81,6 @@ function Tools(props) {
 
 	const Toggle = () => {
 		props.setTurn(true);
-		console.log("change of turn for room " + props.room);
 		props.socket.emit("turn", props.room);
 	};
 
