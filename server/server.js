@@ -209,11 +209,49 @@ io.on("connection", (socket) => {
 		db.setAns(data.roomID, data.ans);
 		db.takenPrompt(data.index, data.roomID);
 		io.to(data.roomID).emit("set-timers");
+		io.to(data.roomID).emit("reset-mfs");
 	});
 
 	// Game starts here
 	socket.on("startGame", (data) => {
 		console.log("//// GAME STARTED ////");
+	});
+
+	socket.on("time-over", (room) => {
+		console.log("************************************************************");
+
+		if (db.isRoundOver(room)) {
+			console.log("###### round over");
+			db.resetAfterTurn(room);
+			const rnd = db.getRound(room);
+			const winners = db.getWinners(room);
+			io.in(room).emit("roundOver", {
+				round: rnd,
+				winners: winners,
+			});
+		} else {
+			console.log("turn over");
+
+			const newDrawer = db.getDrawer(room);
+			console.log("newDrawer is " + newDrawer);
+			console.log("over here");
+			const newPrompts = db.getNewPrompts(room);
+			console.log("after getting prompts");
+			console.log("newPrompts are ");
+			console.log(newPrompts);
+			console.log("data.roomID " + room);
+			db.resetAfterTurn(room);
+			db.updateAnswered(newDrawer);
+
+			console.log("about to emit");
+
+			io.in(room).emit("prompt", {
+				drawerID: newDrawer,
+				words: newPrompts.words,
+				indices: newPrompts.indices,
+				// isFirst: false,
+			});
+		}
 	});
 
 	/*socket.on("answer", (data) => {

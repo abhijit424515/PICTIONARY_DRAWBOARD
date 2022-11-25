@@ -49,8 +49,18 @@ const App = () => {
 	};
 
 	useEffect(() => {
+		setRoundOver(false);
+		if (roundOver == true && turn == true && gameStarted == true) {
+			console.log("*************************************************");
+			socket.emit("time-over", roomID);
+		}
+	}, [roundOver]);
+
+	useEffect(() => {
 		socket.on("game-started", () => {
 			console.log("received gamestart");
+			setGameStarted(true);
+			// setRoundOver(false);
 			// startRound();
 			// setGameStarted(true);
 		});
