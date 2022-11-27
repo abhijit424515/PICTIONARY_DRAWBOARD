@@ -21,7 +21,8 @@ const connectionOptions = {
 	transports: ["websocket"],
 };
 
-const socket = io(server, connectionOptions);
+// const socket = io(server, connectionOptions);
+const socket = io();
 
 const App = () => {
 	const [userNo, setUserNo] = useState(0);
